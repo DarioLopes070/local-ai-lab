@@ -1,0 +1,4 @@
+﻿modelo,teste,prompt,tokens_gerados,tempo_ollama_s,tempo_powershell_s,tokens_por_segundo,encerramento
+qwen3:4b-instruct,1,"Explique o que é uma API REST em no máximo duas frases.",80,1.09,3.16,93.64,stop
+qwen3:4b-instruct,2,"Explique o que é uma API REST em no máximo duas frases.",80,1.09,3.17,93.51,stop
+qwen3:4b-instruct,3,"Explique o que é uma API REST em no máximo duas frases.",80,0.89,0.89,93.84,stop
