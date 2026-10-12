@@ -1,10 +1,11 @@
+
 import json
 from urllib.error import URLError
 from unittest.mock import patch
 
 import pytest
 
-from src.assistant import ask_model
+from src.assistant import ask_model, limitar_historico
 
 
 @patch("src.assistant.urllib.request.urlopen")
@@ -53,3 +54,64 @@ def test_ask_model_propagates_connection_error(mock_urlopen):
 
     with pytest.raises(URLError):
         ask_model(mensagens)
+
+
+def test_limitar_historico_menor_que_limite():
+    historico = [
+        {"role": "user", "content": "Olá"},
+        {"role": "assistant", "content": "Oi!"}
+    ]
+
+    resultado = limitar_historico(historico)
+
+    assert resultado == historico
+
+
+def test_limitar_historico_maior_que_limite():
+    historico = []
+
+    for i in range(5):
+        historico.append({
+            "role": "user",
+            "content": f"Pergunta {i}"
+        })
+        historico.append({
+            "role": "assistant",
+            "content": f"Resposta {i}"
+        })
+
+    resultado = limitar_historico(historico)
+
+    assert len(resultado) == 6
+    assert resultado == historico[-6:]
+    assert resultado[0]["content"] == "Pergunta 2"
+    assert resultado[-1]["content"] == "Resposta 4"
+
+
+def test_limitar_historico_vazio():
+    assert limitar_historico([]) == []
+
+
+def test_limitar_historico_nao_modifica_original():
+    historico = [
+        {"role": "user", "content": str(i)}
+        for i in range(10)
+    ]
+
+    original = historico.copy()
+
+    limitar_historico(historico)
+
+    assert historico == original
+
+
+def test_limitar_historico_igual_ao_limite():
+    historico = [
+        {"role": "user", "content": str(i)}
+        for i in range(6)
+    ]
+
+    resultado = limitar_historico(historico)
+
+    assert len(resultado) == 6
+    assert resultado == historico

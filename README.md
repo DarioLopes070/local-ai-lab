@@ -17,7 +17,6 @@ Laboratório pessoal para executar, testar e avaliar modelos de IA localmente us
 - Linguagem: Python
 - Testes: pytest
 
-
 ## Primeiro benchmark
 
 **Modelo:** qwen3:4b-instruct  
@@ -83,6 +82,8 @@ o contexto das mensagens durante uma sessão.
 - Perguntas e respostas são adicionadas ao histórico após uma resposta válida.
 - Em caso de erro na requisição, o histórico não é atualizado.
 - O histórico é mantido apenas em memória RAM e é perdido ao encerrar o programa.
+- O histórico utiliza uma janela deslizante limitada a 6 mensagens anteriores (3 pares de pergunta e resposta).
+- As mensagens mais antigas são descartadas quando o limite é ultrapassado, reduzindo o crescimento do contexto enviado ao modelo.
 
 ### Validação
 
@@ -93,6 +94,14 @@ Nas perguntas seguintes, recuperou corretamente ambas as informações.
 Os testes automatizados foram adaptados ao formato da API /api/chat.
 
 Resultado: 7 testes aprovados.
+
+Também foi realizado um teste de esquecimento com o identificador
+LAB-73921. Após interações suficientes para remover a mensagem
+original da janela de histórico, o assistente não conseguiu
+recuperar o identificador.
+
+A suíte automatizada possui 12 testes aprovados, incluindo
+testes específicos para o limite e a preservação do histórico.
 
 ### Próximas melhorias
 
