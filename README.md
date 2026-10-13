@@ -87,6 +87,36 @@ o contexto das mensagens durante uma sessão.
 - O comando `limpar` reinicia o histórico da conversa sem encerrar o assistente.
 - O comando é processado localmente, sem enviar uma requisição ao Ollama.
 
+### Seleção de modelos
+
+O assistente permite selecionar diferentes modelos instalados no Ollama diretamente pela linha de comando, sem modificar o código Python.
+
+**Executar com o modelo padrão (`qwen3:4b-instruct`):**
+
+```powershell
+python src/assistant.py
+```
+
+**Executar com um modelo específico:**
+
+```powershell
+python src/assistant.py --model qwen3:4b-instruct
+```
+
+**Consultar as opções disponíveis:**
+
+```powershell
+python src/assistant.py --help
+```
+
+Para visualizar os modelos instalados no Ollama:
+
+```powershell
+ollama list
+```
+
+> **Observação:** cada modelo pode apresentar comportamentos diferentes. Durante os testes, o `qwen3:4b` consumiu o limite de 500 tokens com raciocínio e não concluiu a resposta. Por isso, mantemos o `qwen3:4b-instruct` como modelo padrão.
+
 ### Validação
 
 Foi realizado um teste manual em que o assistente recebeu

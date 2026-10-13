@@ -111,7 +111,7 @@ def test_comando_limpar_reinicia_historico(monkeypatch, capsys):
     def fake_input(prompt):
         return next(entradas)
 
-    def fake_ask_model(messages):
+    def fake_ask_model(messages, **kwargs):
         chamadas.append([mensagem.copy() for mensagem in messages])
         return "Resposta simulada", "stop"
 
@@ -135,3 +135,36 @@ def test_comando_limpar_reinicia_historico(monkeypatch, capsys):
 
     saida = capsys.readouterr().out
     assert "Histórico da conversa limpo!" in saida
+
+
+def test_main_utiliza_modelo_selecionado(monkeypatch, capsys):
+    entradas = iter([
+        "Olá!",
+        "sair",
+    ])
+
+    chamadas = []
+
+    def fake_input(prompt):
+        return next(entradas)
+
+    def fake_ask_model(messages, model):
+        chamadas.append({
+            "messages": [mensagem.copy() for mensagem in messages],
+            "model": model,
+        })
+        return "Olá! Como posso ajudar?", "stop"
+
+    monkeypatch.setattr("builtins.input", fake_input)
+    monkeypatch.setattr("src.assistant.ask_model", fake_ask_model)
+
+    main(model="qwen3:4b")
+
+    assert len(chamadas) == 1
+    assert chamadas[0]["model"] == "qwen3:4b"
+    assert chamadas[0]["messages"] == [
+        {"role": "user", "content": "Olá!"}
+    ]
+
+    saida = capsys.readouterr().out
+    assert "Assistente IA Local (qwen3:4b)" in saida

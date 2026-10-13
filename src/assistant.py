@@ -1,3 +1,4 @@
+import argparse
 import json
 import urllib.error
 import urllib.request
@@ -45,8 +46,8 @@ def limitar_historico(historico, max_messages=MAX_HISTORY_MESSAGES):
     return historico[-max_messages:] if max_messages > 0 else []
 
 
-def main():
-    print(f"Assistente IA Local ({DEFAULT_MODEL})")
+def main(model=DEFAULT_MODEL):
+    print(f"Assistente IA Local ({model})")
     print("Digite 'sair' para encerrar ou 'limpar' para reiniciar a conversa.\n")
 
     historico = []
@@ -73,7 +74,7 @@ def main():
         try:
             mensagens = historico + [{"role": "user", "content": pergunta}]
 
-            resposta, motivo = ask_model(mensagens)
+            resposta, motivo = ask_model(mensagens, model=model)
 
             historico.append({"role": "user", "content": pergunta})
             historico.append({"role": "assistant", "content": resposta})
@@ -108,4 +109,15 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(
+        description="Assistente de IA local utilizando Ollama."
+    )
+
+    parser.add_argument(
+        "--model",
+        default=DEFAULT_MODEL,
+        help=f"Modelo do Ollama (padrão: {DEFAULT_MODEL})",
+    )
+
+    args = parser.parse_args()
+    main(model=args.model)
