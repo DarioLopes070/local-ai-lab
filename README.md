@@ -84,6 +84,8 @@ o contexto das mensagens durante uma sessão.
 - O histórico é mantido apenas em memória RAM e é perdido ao encerrar o programa.
 - O histórico utiliza uma janela deslizante limitada a 6 mensagens anteriores (3 pares de pergunta e resposta).
 - As mensagens mais antigas são descartadas quando o limite é ultrapassado, reduzindo o crescimento do contexto enviado ao modelo.
+- O comando `limpar` reinicia o histórico da conversa sem encerrar o assistente.
+- O comando é processado localmente, sem enviar uma requisição ao Ollama.
 
 ### Validação
 
@@ -101,9 +103,14 @@ recuperar o identificador.
 A suíte automatizada possui 12 testes aprovados, incluindo
 testes específicos para o limite e a preservação do histórico.
 
+O comando `limpar` foi validado manualmente e por um teste
+automatizado que confirma que mensagens anteriores não são
+enviadas ao modelo após a limpeza do histórico.
+
 ### Próximas melhorias
 
 - Criar testes específicos para a atualização do histórico.
 - Implementar um comando para limpar a conversa.
 - Aprimorar o gerenciamento de contexto com limites baseados em tokens.
 - Avaliar persistência do histórico em arquivo ou banco de dados.
+- Implementar um comando para limpar a conversa.

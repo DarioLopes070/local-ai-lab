@@ -47,7 +47,7 @@ def limitar_historico(historico, max_messages=MAX_HISTORY_MESSAGES):
 
 def main():
     print(f"Assistente IA Local ({DEFAULT_MODEL})")
-    print("Digite 'sair' para encerrar.\n")
+    print("Digite 'sair' para encerrar ou 'limpar' para reiniciar a conversa.\n")
 
     historico = []
 
@@ -61,6 +61,11 @@ def main():
         if pergunta.lower() == "sair":
             print("Assistente: Até mais!")
             break
+
+        if pergunta.lower() == "limpar":
+            historico.clear()
+            print("\nAssistente: Histórico da conversa limpo!\n")
+            continue
 
         if not pergunta:
             continue
@@ -94,8 +99,7 @@ def main():
                     "\nNão foi possível conectar ao Ollama. "
                     "Verifique se ele está em execução e tente novamente.\n"
                 )
-                
-                
+
         except TimeoutError:
             print("\nA solicitação demorou demais. Tente novamente.\n")
 
