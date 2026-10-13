@@ -93,8 +93,6 @@ Nas perguntas seguintes, recuperou corretamente ambas as informações.
 
 Os testes automatizados foram adaptados ao formato da API /api/chat.
 
-Resultado: 7 testes aprovados.
-
 Também foi realizado um teste de esquecimento com o identificador
 LAB-73921. Após interações suficientes para remover a mensagem
 original da janela de histórico, o assistente não conseguiu
@@ -107,5 +105,5 @@ testes específicos para o limite e a preservação do histórico.
 
 - Criar testes específicos para a atualização do histórico.
 - Implementar um comando para limpar a conversa.
-- Controlar o tamanho do histórico para evitar excesso de contexto.
+- Aprimorar o gerenciamento de contexto com limites baseados em tokens.
 - Avaliar persistência do histórico em arquivo ou banco de dados.
