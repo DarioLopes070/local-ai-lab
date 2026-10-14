@@ -117,7 +117,6 @@ ollama list
 
 > **Observação:** cada modelo pode apresentar comportamentos diferentes. Durante os testes, o `qwen3:4b` consumiu o limite de 500 tokens com raciocínio e não concluiu a resposta. Por isso, mantemos o `qwen3:4b-instruct` como modelo padrão.
 
-
 ### Configuração dos parâmetros de geração
 
 O Local AI Lab permite personalizar o comportamento dos modelos diretamente pela linha de comando.
@@ -125,7 +124,7 @@ O Local AI Lab permite personalizar o comportamento dos modelos diretamente pela
 Os parâmetros disponíveis são:
 
 | Parâmetro | Descrição | Valor padrão |
-|---|---|---|
+| --- | --- | --- |
 | `--temperature` | Controla a aleatoriedade das respostas. | `0.0` |
 | `--max-tokens` | Define o número máximo de tokens gerados por resposta. | `500` |
 
