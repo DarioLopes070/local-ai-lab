@@ -117,6 +117,48 @@ ollama list
 
 > **Observação:** cada modelo pode apresentar comportamentos diferentes. Durante os testes, o `qwen3:4b` consumiu o limite de 500 tokens com raciocínio e não concluiu a resposta. Por isso, mantemos o `qwen3:4b-instruct` como modelo padrão.
 
+
+### Configuração dos parâmetros de geração
+
+O Local AI Lab permite personalizar o comportamento dos modelos diretamente pela linha de comando.
+
+Os parâmetros disponíveis são:
+
+| Parâmetro | Descrição | Valor padrão |
+|---|---|---|
+| `--temperature` | Controla a aleatoriedade das respostas. | `0.0` |
+| `--max-tokens` | Define o número máximo de tokens gerados por resposta. | `500` |
+
+**Exemplo de execução:**
+
+```powershell
+python src/assistant.py --model qwen3:4b-instruct --temperature 0.3 --max-tokens 800
+```
+
+Para utilizar os valores padrão:
+
+```powershell
+python src/assistant.py
+```
+
+Para visualizar todos os argumentos disponíveis:
+
+```powershell
+python src/assistant.py --help
+```
+
+#### Validação dos parâmetros
+
+O assistente valida os argumentos informados antes de iniciar:
+
+- `--temperature` aceita valores entre `0.0` e `2.0`.
+- `--max-tokens` deve ser um número inteiro maior que zero.
+- Valores inválidos geram uma mensagem de erro no terminal.
+
+**Observação:** valores maiores de `temperature` tendem a produzir respostas mais variadas, enquanto valores menores favorecem resultados mais previsíveis. O parâmetro `max-tokens` estabelece um limite máximo de geração, não uma quantidade obrigatória de tokens.
+
+Essas configurações permitem experimentar diferentes comportamentos dos modelos e comparar os resultados em tarefas de programação e conversação.
+
 ### Validação
 
 Foi realizado um teste manual em que o assistente recebeu

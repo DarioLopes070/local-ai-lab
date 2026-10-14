@@ -138,33 +138,87 @@ def test_comando_limpar_reinicia_historico(monkeypatch, capsys):
 
 
 def test_main_utiliza_modelo_selecionado(monkeypatch, capsys):
-    entradas = iter([
-        "Olá!",
-        "sair",
-    ])
+    entradas = iter(
+        [
+            "Olá!",
+            "sair",
+        ]
+    )
 
     chamadas = []
 
     def fake_input(prompt):
         return next(entradas)
 
-    def fake_ask_model(messages, model):
-        chamadas.append({
-            "messages": [mensagem.copy() for mensagem in messages],
-            "model": model,
-        })
+    def fake_ask_model(messages, model, temperature, max_tokens):
+        chamadas.append(
+            {
+                "messages": [mensagem.copy() for mensagem in messages],
+                "model": model,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+            }
+        )
         return "Olá! Como posso ajudar?", "stop"
 
     monkeypatch.setattr("builtins.input", fake_input)
     monkeypatch.setattr("src.assistant.ask_model", fake_ask_model)
 
-    main(model="qwen3:4b")
+    main(
+        model="qwen3:4b",
+        temperature=0.3,
+        max_tokens=800,
+    )
 
     assert len(chamadas) == 1
     assert chamadas[0]["model"] == "qwen3:4b"
-    assert chamadas[0]["messages"] == [
-        {"role": "user", "content": "Olá!"}
-    ]
+    assert chamadas[0]["messages"] == [{"role": "user", "content": "Olá!"}]
 
     saida = capsys.readouterr().out
     assert "Assistente IA Local (qwen3:4b)" in saida
+    assert chamadas[0]["model"] == "qwen3:4b"
+    assert chamadas[0]["temperature"] == 0.3
+    assert chamadas[0]["max_tokens"] == 800
+
+
+def test_ask_model_envia_parametros_de_geracao(monkeypatch):
+    import json
+    from unittest.mock import MagicMock
+
+    from src.assistant import ask_model
+
+    resposta_api = {
+        "message": {"content": "Resposta de teste"},
+        "done_reason": "stop",
+    }
+
+    resposta_simulada = MagicMock()
+    resposta_simulada.read.return_value = json.dumps(resposta_api).encode("utf-8")
+
+    contexto_simulado = MagicMock()
+    contexto_simulado.__enter__.return_value = resposta_simulada
+
+    def urlopen_simulado(request, timeout):
+        payload = json.loads(request.data.decode("utf-8"))
+
+        assert payload["model"] == "qwen3:4b-instruct"
+        assert payload["options"]["temperature"] == 0.3
+        assert payload["options"]["num_predict"] == 800
+        assert timeout == 120
+
+        return contexto_simulado
+
+    monkeypatch.setattr(
+        "src.assistant.urllib.request.urlopen",
+        urlopen_simulado,
+    )
+
+    resposta, motivo = ask_model(
+        [{"role": "user", "content": "Olá"}],
+        model="qwen3:4b-instruct",
+        temperature=0.3,
+        max_tokens=800,
+    )
+
+    assert resposta == "Resposta de teste"
+    assert motivo == "stop"

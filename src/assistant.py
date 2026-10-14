@@ -10,13 +10,23 @@ DEFAULT_MODEL = "qwen3:4b-instruct"
 MAX_HISTORY_MESSAGES = 6
 
 
-def ask_model(messages, url=DEFAULT_OLLAMA_URL, model=DEFAULT_MODEL, timeout=120):
+def ask_model(
+    messages,
+    url=DEFAULT_OLLAMA_URL,
+    model=DEFAULT_MODEL,
+    timeout=120,
+    temperature=0.0,
+    max_tokens=500,
+):
     """Envia o histórico ao Ollama e retorna a resposta e o motivo do fim."""
     payload = {
         "model": model,
         "messages": messages,
         "stream": False,
-        "options": {"temperature": 0, "num_predict": 500},
+        "options": {
+            "temperature": temperature,
+            "num_predict": max_tokens,
+        },
     }
 
     data = json.dumps(payload).encode("utf-8")
@@ -46,7 +56,11 @@ def limitar_historico(historico, max_messages=MAX_HISTORY_MESSAGES):
     return historico[-max_messages:] if max_messages > 0 else []
 
 
-def main(model=DEFAULT_MODEL):
+def main(
+    model=DEFAULT_MODEL,
+    temperature=0.0,
+    max_tokens=500,
+):
     print(f"Assistente IA Local ({model})")
     print("Digite 'sair' para encerrar ou 'limpar' para reiniciar a conversa.\n")
 
@@ -74,7 +88,12 @@ def main(model=DEFAULT_MODEL):
         try:
             mensagens = historico + [{"role": "user", "content": pergunta}]
 
-            resposta, motivo = ask_model(mensagens, model=model)
+            resposta, motivo = ask_model(
+                mensagens,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
 
             historico.append({"role": "user", "content": pergunta})
             historico.append({"role": "assistant", "content": resposta})
@@ -119,5 +138,30 @@ if __name__ == "__main__":
         help=f"Modelo do Ollama (padrão: {DEFAULT_MODEL})",
     )
 
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=0.0,
+        help="Temperatura de geração (padrão: 0.0)",
+    )
+
+    parser.add_argument(
+        "--max-tokens",
+        type=int,
+        default=500,
+        help="Número máximo de tokens gerados (padrão: 500)",
+    )
+
     args = parser.parse_args()
-    main(model=args.model)
+
+    if not 0.0 <= args.temperature <= 2.0:
+        parser.error("--temperature deve estar entre 0.0 e 2.0.")
+
+    if args.max_tokens < 1:
+        parser.error("--max-tokens deve ser maior que zero.")
+
+    main(
+        model=args.model,
+        temperature=args.temperature,
+        max_tokens=args.max_tokens,
+    )
