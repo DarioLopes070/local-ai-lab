@@ -4,3 +4,8 @@
 venv/
 .env
 *.py[cod]
+# Banco de dados local e arquivos auxiliares do SQLite
+data/
+*.db
+*.db-wal
+*.db-shm

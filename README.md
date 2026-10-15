@@ -146,6 +146,49 @@ Para visualizar todos os argumentos disponíveis:
 python src/assistant.py --help
 ```
 
+### Memória persistente com SQLite
+
+O Local AI Lab está evoluindo para permitir o armazenamento de conversas entre diferentes execuções do assistente.
+
+A primeira etapa dessa funcionalidade utiliza SQLite, um banco de dados local disponível na biblioteca padrão do Python.
+
+**Funcionalidades implementadas:**
+
+- Criação automática do banco de dados e da tabela `messages`.
+- Armazenamento de mensagens com identificação do autor (`user` ou `assistant`).
+- Recuperação das mensagens na ordem em que foram registradas.
+- Registro automático da data e hora de criação.
+- Validação dos papéis permitidos.
+- Testes automatizados utilizando bancos temporários.
+
+**Estrutura:**
+
+```text
+local-ai-lab/
+├── src/
+│   ├── assistant.py
+│   └── memory.py
+├── tests/
+│   ├── test_assistant.py
+│   └── test_memory.py
+└── data/
+    └── conversations.db
+```
+
+O arquivo `data/conversations.db` é criado localmente e está protegido pelo `.gitignore`, evitando que as conversas sejam publicadas no GitHub.
+
+> **Status:** o módulo SQLite já permite salvar e recuperar mensagens, mas ainda não está integrado ao assistente conversacional. Essa integração será implementada na próxima etapa.
+
+#### Testes Automatizados
+
+Para executar os testes do projeto:
+
+```powershell
+python -m pytest -q
+```
+
+Atualmente, o projeto possui **20 testes automatizados aprovados**, incluindo cinco testes específicos para a memória persistente.
+
 #### Validação dos parâmetros
 
 O assistente valida os argumentos informados antes de iniciar:
