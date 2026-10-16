@@ -49,3 +49,10 @@ def carregar_mensagens(db_path=DEFAULT_DB_PATH):
             """).fetchall()
 
     return [{"role": role, "content": content} for role, content in registros]
+
+
+def limpar_mensagens(db_path=DEFAULT_DB_PATH):
+    """Remove todas as mensagens armazenadas no banco SQLite."""
+
+    with sqlite3.connect(db_path) as conexao:
+        conexao.execute("DELETE FROM messages")

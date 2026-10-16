@@ -9,3 +9,6 @@ data/
 *.db
 *.db-wal
 *.db-shm
+# Configurações locais do VS Code
+.vscode/
+

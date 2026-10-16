@@ -2,6 +2,12 @@ import argparse
 import json
 import urllib.error
 import urllib.request
+from src.memory import (
+    inicializar_banco,
+    carregar_mensagens,
+    salvar_mensagem,
+    limpar_mensagens,
+)
 
 # DEFAULT_OLLAMA_URL = "http://localhost:11434/api/generate"
 DEFAULT_OLLAMA_URL = "http://localhost:11434/api/chat"
@@ -64,7 +70,10 @@ def main(
     print(f"Assistente IA Local ({model})")
     print("Digite 'sair' para encerrar ou 'limpar' para reiniciar a conversa.\n")
 
-    historico = []
+    inicializar_banco()
+    historico = limitar_historico(carregar_mensagens())
+
+    print(f"Histórico carregado: {len(historico)} mensagens.\n")
 
     while True:
         try:
@@ -78,7 +87,9 @@ def main(
             break
 
         if pergunta.lower() == "limpar":
+            limpar_mensagens()
             historico.clear()
+
             print("\nAssistente: Histórico da conversa limpo!\n")
             continue
 
@@ -95,6 +106,11 @@ def main(
                 max_tokens=max_tokens,
             )
 
+            # Salva a conversa no banco SQLite
+            salvar_mensagem("user", pergunta)
+            salvar_mensagem("assistant", resposta)
+
+            # Atualiza a memória temporária utilizada pelo modelo
             historico.append({"role": "user", "content": pergunta})
             historico.append({"role": "assistant", "content": resposta})
 

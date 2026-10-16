@@ -148,58 +148,61 @@ python src/assistant.py --help
 
 ### Memória persistente com SQLite
 
-O Local AI Lab está evoluindo para permitir o armazenamento de conversas entre diferentes execuções do assistente.
+O Local AI Lab utiliza SQLite para armazenar o histórico de conversas localmente, permitindo recuperar mensagens mesmo após encerrar e reiniciar o assistente.
 
-A primeira etapa dessa funcionalidade utiliza SQLite, um banco de dados local disponível na biblioteca padrão do Python.
+A implementação utiliza a biblioteca `sqlite3`, disponível na biblioteca padrão do Python, sem necessidade de instalar um servidor de banco de dados.
 
-**Funcionalidades implementadas:**
+#### (Funcionalidades)
 
-- Criação automática do banco de dados e da tabela `messages`.
-- Armazenamento de mensagens com identificação do autor (`user` ou `assistant`).
-- Recuperação das mensagens na ordem em que foram registradas.
-- Registro automático da data e hora de criação.
-- Validação dos papéis permitidos.
-- Testes automatizados utilizando bancos temporários.
+- Criação automática do banco SQLite e da tabela `messages`.
+- Armazenamento das perguntas e respostas após cada interação bem-sucedida.
+- Recuperação do histórico ao iniciar o assistente.
+- Utilização das últimas 6 mensagens como contexto para o modelo.
+- Comando `limpar` para excluir o histórico em memória e no SQLite.
+- Testes automatizados com bancos temporários, sem alterar os dados reais.
 
-**Estrutura:**
+#### Executando o assistente
 
-```text
-local-ai-lab/
-├── src/
-│   ├── assistant.py
-│   └── memory.py
-├── tests/
-│   ├── test_assistant.py
-│   └── test_memory.py
-└── data/
-    └── conversations.db
+A partir da raiz do projeto:
+
+```powershell
+python -m src.assistant
 ```
 
-O arquivo `data/conversations.db` é criado localmente e está protegido pelo `.gitignore`, evitando que as conversas sejam publicadas no GitHub.
+Também é possível personalizar o modelo e os parâmetros de geração:
 
-> **Status:** o módulo SQLite já permite salvar e recuperar mensagens, mas ainda não está integrado ao assistente conversacional. Essa integração será implementada na próxima etapa.
+```powershell
+python -m src.assistant --model qwen3:4b-instruct --temperature 0.3 --max-tokens 800
+```
+
+**Comandos disponíveis durante a conversa:**
+
+| Comando | Descrição |
+| --- | --- |
+| `sair` | Encerra o programa, preservando o histórico salvo. |
+| `limpar` | Exclui todas as mensagens armazenadas no SQLite e limpa o contexto atual. |
+
+#### Armazenamento local
+
+O banco é criado em:
+
+```text
+data/conversations.db
+```
+
+Esse arquivo está protegido pelo `.gitignore` e não é enviado ao GitHub.
+
+**Atenção:** o armazenamento local não significa que o conteúdo esteja criptografado. Evite inserir senhas, tokens de acesso e outras informações sensíveis.
 
 #### Testes Automatizados
 
-Para executar os testes do projeto:
+Execute a suíte completa com:
 
 ```powershell
-python -m pytest -q
+python -m pytest -v
 ```
 
-Atualmente, o projeto possui **20 testes automatizados aprovados**, incluindo cinco testes específicos para a memória persistente.
-
-#### Validação dos parâmetros
-
-O assistente valida os argumentos informados antes de iniciar:
-
-- `--temperature` aceita valores entre `0.0` e `2.0`.
-- `--max-tokens` deve ser um número inteiro maior que zero.
-- Valores inválidos geram uma mensagem de erro no terminal.
-
-**Observação:** valores maiores de `temperature` tendem a produzir respostas mais variadas, enquanto valores menores favorecem resultados mais previsíveis. O parâmetro `max-tokens` estabelece um limite máximo de geração, não uma quantidade obrigatória de tokens.
-
-Essas configurações permitem experimentar diferentes comportamentos dos modelos e comparar os resultados em tarefas de programação e conversação.
+Na conclusão desta etapa, o projeto possui **22 testes automatizados aprovados**, incluindo testes específicos para criação, leitura, escrita e limpeza da memória persistente.
 
 ### Validação
 

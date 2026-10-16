@@ -6,6 +6,48 @@ import pytest
 
 from src.assistant import ask_model, limitar_historico, main
 
+from functools import partial
+
+from src import assistant
+
+from src.memory import (
+    inicializar_banco,
+    carregar_mensagens,
+    salvar_mensagem,
+    limpar_mensagens,
+)
+
+
+@pytest.fixture(autouse=True)
+def isolar_banco_do_assistente(monkeypatch, tmp_path):
+    """Impede que os testes acessem o banco real do assistente."""
+
+    db_path = tmp_path / "test_assistant.db"
+
+    monkeypatch.setattr(
+        assistant,
+        "inicializar_banco",
+        partial(inicializar_banco, db_path=db_path),
+    )
+
+    monkeypatch.setattr(
+        assistant,
+        "carregar_mensagens",
+        partial(carregar_mensagens, db_path=db_path),
+    )
+
+    monkeypatch.setattr(
+        assistant,
+        "salvar_mensagem",
+        partial(salvar_mensagem, db_path=db_path),
+    )
+
+    monkeypatch.setattr(
+        assistant,
+        "limpar_mensagens",
+        partial(limpar_mensagens, db_path=db_path),
+    )
+
 
 @patch("src.assistant.urllib.request.urlopen")
 def test_ask_model_returns_response(mock_urlopen):
@@ -222,3 +264,39 @@ def test_ask_model_envia_parametros_de_geracao(monkeypatch):
 
     assert resposta == "Resposta de teste"
     assert motivo == "stop"
+
+
+def test_comando_limpar_remove_memoria_persistente(monkeypatch, tmp_path):
+    """Verifica se o comando limpar remove o histórico do SQLite."""
+
+    db_path = tmp_path / "test_assistant.db"
+
+    # Cria a estrutura do banco antes de inserir mensagens
+    inicializar_banco(db_path)
+
+    entradas = iter(["limpar", "sair"])
+
+    # Simula o usuário digitando os comandos
+    monkeypatch.setattr(
+        "builtins.input",
+        lambda prompt: next(entradas),
+    )
+
+    # Prepara uma conversa que já existia antes da execução
+    salvar_mensagem(
+        "user",
+        "Meu código é LAB-85123",
+        db_path,
+    )
+
+    assert len(carregar_mensagens(db_path)) == 1
+
+    # A fixture existente redireciona o assistente
+    # para esse mesmo banco temporário
+    assistant.main()
+
+    # O comando limpar deve remover o histórico salvo
+    assert carregar_mensagens(db_path) == []
+
+    # O banco continua existindo
+    assert db_path.exists()
