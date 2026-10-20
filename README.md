@@ -204,6 +204,59 @@ python -m pytest -v
 
 Na conclusão desta etapa, o projeto possui **22 testes automatizados aprovados**, incluindo testes específicos para criação, leitura, escrita e limpeza da memória persistente.
 
+### Ferramentas de acesso a arquivos
+
+O Local AI Lab iniciou a implementação de ferramentas para permitir que, futuramente, o assistente de IA consulte e analise projetos de programação.
+
+A primeira ferramenta implementada é `listar_arquivos()`, disponível em `src/tools/file_tools.py`.
+
+#### Funcionalidades_
+
+- Listagem de arquivos de um diretório autorizado.
+- Retorno dos caminhos relativos em ordem alfabética.
+- Exclusão de diretórios internos, como `.git`, `.venv`, `.vscode`, `node_modules` e `data`.
+- Exclusão de arquivos de configuração sensíveis conhecidos, como `.env`.
+- Bloqueio de links simbólicos e junctions do Windows.
+- Verificação de caminhos para evitar acesso fora da raiz autorizada.
+- Limite configurável de arquivos retornados.
+- Validação de argumentos inválidos.
+
+#### Exemplo de utilização
+
+```python
+from src.tools.file_tools import listar_arquivos
+
+arquivos = listar_arquivos(
+    ".",
+    raiz_autorizada=".",
+    max_arquivos=100,
+)
+
+for arquivo in arquivos:
+    print(arquivo)
+```
+
+A função exige que uma raiz autorizada seja informada explicitamente.
+
+#### Testes automatizados_
+
+Os testes da ferramenta estão em `tests/test_file_tools.py`.
+
+Para executá-los:
+
+```powershell
+python -m pytest tests/test_file_tools.py -q
+```
+
+Na validação desta etapa, a suíte completa apresentou:
+
+- 36 testes aprovados.
+- 1 teste ignorado devido às permissões para criação de links simbólicos no Windows.
+- Nenhuma falha.
+
+> **Status:** a listagem de arquivos funciona de maneira independente. A integração com o Ollama ainda não foi implementada.
+> **Segurança:** os filtros atuais representam uma camada inicial de proteção. Antes de permitir acesso automatizado pelo LLM, serão necessárias verificações adicionais.
+
 ### Validação
 
 Foi realizado um teste manual em que o assistente recebeu

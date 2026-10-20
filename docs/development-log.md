@@ -57,3 +57,34 @@ Evoluir o assistente local em Python e Ollama, adicionando parâmetros configur�
 ### Próxima fase
 
 Preparar a arquitetura de um agente local de programação com ferramentas controladas, mantendo o foco em testes automatizados, segurança e baixo consumo de recursos.
+
+## Semana de 19 a 23 de outubro de 2026
+
+### 19/10 — Primeira ferramenta de arquivos
+
+Iniciada a evolução do assistente conversacional para um agente local de programação.
+
+#### Implementações
+
+- Criação do pacote `src/tools/`.
+- Implementação da função `listar_arquivos()`.
+- Filtros para diretórios internos e arquivos sensíveis conhecidos.
+- Limite configurável para a quantidade de arquivos retornados.
+- Exigência de uma raiz autorizada.
+- Bloqueio de caminhos externos.
+- Proteção contra links simbólicos e junctions do Windows.
+
+#### Testes e aprendizados
+
+Durante os testes, foi identificado que uma junction do Windows permitia listar arquivos externos ao projeto.
+
+A implementação foi corrigida para controlar a travessia de diretórios e verificar os caminhos resolvidos antes de acessar seu conteúdo.
+
+Resultado da suíte completa: **36 testes aprovados, 1 ignorado e nenhuma falha**.
+
+#### Próximos passos
+
+- Implementar leitura controlada de arquivos.
+- Adicionar restrições de extensão e tamanho.
+- Revisar as proteções antes da integração com o Ollama.
+- Investigar o suporte do modelo local a tool calling.
