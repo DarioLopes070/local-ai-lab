@@ -88,3 +88,40 @@ Resultado da suíte completa: **36 testes aprovados, 1 ignorado e nenhuma falha*
 - Adicionar restrições de extensão e tamanho.
 - Revisar as proteções antes da integração com o Ollama.
 - Investigar o suporte do modelo local a tool calling.
+
+### 20/10 — Leitura controlada de arquivos
+
+Implementada a segunda ferramenta do futuro agente local de programação: `ler_arquivo()`.
+
+#### Implementações_
+
+- Leitura de arquivos `.py`, `.md`, `.json` e `.txt`.
+- Validação de caminhos dentro de uma raiz autorizada.
+- Bloqueio de acessos externos ao projeto.
+- Restrição de links simbólicos e junctions do Windows.
+- Bloqueio de diretórios internos e arquivos sensíveis conhecidos.
+- Limitação de arquivos a 100.000 bytes.
+- Leitura de conteúdo em UTF-8.
+
+#### Testes e resultados
+
+Foram criados testes automatizados para verificar:
+
+- Leitura de arquivos permitidos.
+- Rejeição de caminhos externos.
+- Bloqueio de arquivos `.env`.
+- Rejeição de extensões inválidas.
+- Rejeição de arquivos acima do limite.
+- Bloqueio de junctions externas.
+- Bloqueio de diretórios protegidos.
+
+Resultado da suíte completa: **47 testes aprovados, 1 ignorado e nenhuma falha**.
+
+#### Próximos passos_
+
+- Revisar as proteções das ferramentas de arquivos.
+- Investigar o suporte do Ollama a tool calling.
+- Integrar as ferramentas ao assistente.
+- Testar análise de código com informações reais do projeto.
+
+A integração com o modelo de IA permanece pendente.

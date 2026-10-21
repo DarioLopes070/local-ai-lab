@@ -257,6 +257,48 @@ Na validação desta etapa, a suíte completa apresentou:
 > **Status:** a listagem de arquivos funciona de maneira independente. A integração com o Ollama ainda não foi implementada.
 > **Segurança:** os filtros atuais representam uma camada inicial de proteção. Antes de permitir acesso automatizado pelo LLM, serão necessárias verificações adicionais.
 
+#### Leitura controlada de arquivos
+
+A função `ler_arquivo()`, disponível em `src/tools/file_tools.py`, permite consultar o conteúdo de arquivos de texto pertencentes a um projeto autorizado.
+
+**Funcionalidades implementadas:**
+
+- Leitura de arquivos `.py`, `.md`, `.json` e `.txt`.
+- Exigência de uma raiz autorizada.
+- Bloqueio de caminhos externos ao projeto.
+- Bloqueio de links simbólicos e junctions do Windows.
+- Restrição de diretórios internos, como `.git`, `.venv`, `.vscode`, `data` e `node_modules`.
+- Bloqueio de nomes sensíveis conhecidos, como `.env`.
+- Limite de 100.000 bytes por arquivo.
+- Leitura utilizando codificação UTF-8.
+
+**Exemplo de utilização:**
+
+```python
+from src.tools.file_tools import ler_arquivo
+
+conteudo = ler_arquivo(
+    "src/assistant.py",
+    raiz_autorizada=".",
+)
+
+print(conteudo)
+```
+
+A função é independente do Ollama nesta etapa.
+
+> **Segurança:** as validações implementadas cobrem os cenários testados, mas não constituem uma sandbox completa. Antes da integração com o LLM, ainda será necessário revisar riscos relacionados a alterações de arquivos durante a leitura e outros caminhos sensíveis.
+
+#### Testes da ferramenta
+
+Para executar os testes das ferramentas de arquivos:
+
+```powershell
+python -m pytest tests/test_file_tools.py -q
+```
+
+Na conclusão desta etapa, a suíte completa do Local AI Lab apresentou **47 testes aprovados, 1 ignorado e nenhuma falha**.
+
 ### Validação
 
 Foi realizado um teste manual em que o assistente recebeu

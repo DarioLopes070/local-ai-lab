@@ -1,6 +1,6 @@
 import pytest
 
-from src.tools.file_tools import listar_arquivos
+from src.tools.file_tools import listar_arquivos, ler_arquivo
 
 
 @pytest.fixture
@@ -177,3 +177,110 @@ def test_listar_arquivos_exige_raiz_autorizada(tmp_path):
 
     with pytest.raises(ValueError):
         listar_arquivos(tmp_path)
+
+
+def test_ler_arquivo_permitido(tmp_path):
+    """Lê um arquivo permitido dentro da raiz autorizada."""
+
+    arquivo = tmp_path / "exemplo.py"
+    arquivo.write_text("print('Olá, mundo!')", encoding="utf-8")
+
+    conteudo = ler_arquivo("exemplo.py", raiz_autorizada=tmp_path)
+
+    assert conteudo == "print('Olá, mundo!')"
+
+
+def test_ler_arquivo_bloqueia_acesso_externo(tmp_path):
+    """Impede a leitura de arquivos fora da raiz autorizada."""
+
+    projeto = tmp_path / "projeto"
+    projeto.mkdir()
+
+    externo = tmp_path / "segredo.txt"
+    externo.write_text("informação privada", encoding="utf-8")
+
+    with pytest.raises(PermissionError):
+        ler_arquivo(externo, raiz_autorizada=projeto)
+
+
+def test_ler_arquivo_bloqueia_env(tmp_path):
+    """Impede a leitura de arquivos de configuração sensíveis."""
+
+    arquivo = tmp_path / ".env"
+    arquivo.write_text("API_KEY=segredo", encoding="utf-8")
+
+    with pytest.raises(PermissionError):
+        ler_arquivo(".env", raiz_autorizada=tmp_path)
+
+
+def test_ler_arquivo_bloqueia_extensao_invalida(tmp_path):
+    """Rejeita arquivos com extensões não autorizadas."""
+
+    arquivo = tmp_path / "programa.exe"
+    arquivo.write_bytes(b"conteudo de teste")
+
+    with pytest.raises(ValueError):
+        ler_arquivo("programa.exe", raiz_autorizada=tmp_path)
+
+
+def test_ler_arquivo_bloqueia_arquivo_grande(tmp_path):
+    """Impede a leitura de arquivos acima do limite definido."""
+
+    arquivo = tmp_path / "grande.txt"
+    arquivo.write_text("A" * 100_001, encoding="utf-8")
+
+    with pytest.raises(ValueError):
+        ler_arquivo("grande.txt", raiz_autorizada=tmp_path)
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Teste específico do Windows")
+def test_ler_arquivo_bloqueia_junction_externa(tmp_path):
+    """Impede leitura de arquivos externos através de junctions."""
+
+    projeto = tmp_path / "projeto"
+    projeto.mkdir()
+
+    externo = tmp_path / "privado"
+    externo.mkdir()
+
+    (externo / "segredo.txt").write_text(
+        "informação confidencial",
+        encoding="utf-8",
+    )
+
+    junction = projeto / "atalho"
+
+    resultado = subprocess.run(
+        ["cmd", "/c", "mklink", "/J", str(junction), str(externo)],
+        capture_output=True,
+        check=False,
+    )
+
+    if resultado.returncode != 0:
+        pytest.skip("Não foi possível criar uma junction neste Windows.")
+
+    with pytest.raises(PermissionError):
+        ler_arquivo(
+            "atalho/segredo.txt",
+            raiz_autorizada=projeto,
+        )
+
+
+@pytest.mark.parametrize(
+    "diretorio",
+    [".git", ".venv", ".vscode", "data", "node_modules"],
+)
+def test_ler_arquivo_bloqueia_diretorios_sensiveis(tmp_path, diretorio):
+    """Impede leitura de arquivos dentro de diretórios protegidos."""
+
+    pasta = tmp_path / diretorio
+    pasta.mkdir()
+
+    arquivo = pasta / "segredo.txt"
+    arquivo.write_text("informação privada", encoding="utf-8")
+
+    with pytest.raises(PermissionError):
+        ler_arquivo(
+            f"{diretorio}/segredo.txt",
+            raiz_autorizada=tmp_path,
+        )
