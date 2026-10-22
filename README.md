@@ -299,6 +299,76 @@ python -m pytest tests/test_file_tools.py -q
 
 Na conclusão desta etapa, a suíte completa do Local AI Lab apresentou **47 testes aprovados, 1 ignorado e nenhuma falha**.
 
+### Tool Calling com Ollama
+
+O Local AI Lab possui uma implementação experimental de **Tool Calling**, permitindo que modelos locais solicitem ferramentas Python para consultar informações de projetos de programação.
+
+A implementação utiliza o modelo `qwen3:4b-instruct` e a API `/api/chat` do Ollama.
+
+#### Funcionamento_
+
+O fluxo de execução segue as etapas:
+
+1. O usuário envia uma pergunta.
+2. O Ollama identifica se precisa de uma ferramenta.
+3. O Python recebe a solicitação pelo campo `tool_calls`.
+4. O sistema valida o nome e os argumentos da ferramenta.
+5. Uma ferramenta autorizada é executada.
+6. O resultado é devolvido ao Ollama.
+7. O modelo produz uma resposta utilizando os dados recebidos.
+
+#### Componentes implementados
+
+O módulo `src/tool_calling.py` contém:
+
+- `solicitar_ferramenta()`: envia uma solicitação ao Ollama e recupera possíveis chamadas de ferramentas.
+- `validar_tool_call()`: verifica se a operação solicitada está autorizada.
+- `executar_tool_call()`: executa ferramentas permitidas dentro de uma raiz autorizada.
+- `responder_com_ferramenta()`: realiza um ciclo completo de solicitação, execução e resposta.
+
+#### Ferramentas disponíveis
+
+| Ferramenta | Descrição | Disponibilidade |
+| --- | --- | --- |
+| `listar_arquivos()` | Lista arquivos de um diretório autorizado. | Integrada ao Tool Calling |
+| `ler_arquivo()` | Lê arquivos de texto e código com restrições. | Implementada, ainda não integrada ao Tool Calling |
+
+#### Exemplo de utilização_
+
+A partir da raiz do projeto, com o Ollama em execução:
+
+```python
+from src.tool_calling import responder_com_ferramenta
+
+resposta = responder_com_ferramenta(
+    "Quais arquivos existem neste projeto?",
+    raiz_autorizada=".",
+)
+
+print(resposta)
+```
+
+#### Limitações e segurança
+
+- Apenas ferramentas previamente autorizadas podem ser executadas.
+- O modelo não pode definir a raiz autorizada.
+- Nesta versão, é permitida no máximo uma chamada de ferramenta por pergunta.
+- O Tool Calling não permite editar arquivos ou executar comandos do sistema.
+- Respostas malformadas da API são rejeitadas nos cenários validados.
+- A implementação ainda não está integrada ao assistente principal.
+
+> **Atenção:** esta é uma implementação experimental, não uma sandbox completa. Arquivos e conteúdos devem ser considerados dados não confiáveis, e as verificações de acesso ainda precisam ser fortalecidas antes de ampliar as permissões do agente.
+
+#### Testes automatizados__
+
+Para executar todos os testes:
+
+```powershell
+python -m pytest -q
+```
+
+Na conclusão desta etapa, o Local AI Lab possui **61 testes aprovados e 1 teste ignorado**.
+
 ### Validação
 
 Foi realizado um teste manual em que o assistente recebeu

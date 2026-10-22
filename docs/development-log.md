@@ -125,3 +125,52 @@ Resultado da suíte completa: **47 testes aprovados, 1 ignorado e nenhuma falha*
 - Testar análise de código com informações reais do projeto.
 
 A integração com o modelo de IA permanece pendente.
+
+### 21–22/10 — Primeiro Tool Calling com Ollama
+
+Implementada uma integração experimental entre o modelo local `qwen3:4b-instruct` e ferramentas Python.
+
+#### Implementações__
+
+- Criação do módulo `src/tool_calling.py`.
+- Definição de ferramentas disponíveis para o Ollama.
+- Recebimento e interpretação de `tool_calls`.
+- Validação de nomes e argumentos das ferramentas solicitadas.
+- Execução controlada da ferramenta `listar_arquivos()`.
+- Envio dos resultados das ferramentas de volta ao modelo.
+- Rejeição de ferramentas desconhecidas e múltiplas chamadas.
+- Validação de respostas malformadas da API.
+
+#### Experimento realizado
+
+Foi criado um diretório temporário contendo dois arquivos:
+
+- `README.md`
+- `exemplo.py`
+
+O modelo solicitou a ferramenta `listar_arquivos()`, recebeu os nomes dos arquivos encontrados e respondeu corretamente à pergunta.
+
+Esse experimento validou o primeiro ciclo completo:
+
+**Usuário → Ollama → ferramenta Python → Ollama → resposta final.**
+
+#### Testes automatizados
+
+Foram criados 14 testes relacionados ao módulo de Tool Calling.
+
+Resultado da suíte completa: **61 testes aprovados, 1 ignorado e nenhuma falha**.
+
+#### Limitações atuais
+
+- A integração ainda está separada do assistente principal.
+- Apenas `listar_arquivos()` está disponível no Tool Calling.
+- O sistema permite somente uma chamada de ferramenta por pergunta.
+- Não existem permissões para editar arquivos ou executar comandos.
+- O tratamento de erros e os controles de segurança ainda serão aprimorados.
+
+#### Próximos passos__
+
+- Fortalecer a validação e o isolamento das ferramentas.
+- Integrar `ler_arquivo()` ao Tool Calling.
+- Criar testes para análise de código-fonte.
+- Planejar a integração com o assistente principal e sua memória SQLite.
