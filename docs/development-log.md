@@ -174,3 +174,44 @@ Resultado da suíte completa: **61 testes aprovados, 1 ignorado e nenhuma falha*
 - Integrar `ler_arquivo()` ao Tool Calling.
 - Criar testes para análise de código-fonte.
 - Planejar a integração com o assistente principal e sua memória SQLite.
+
+### 22/10 — Integração de leitura de arquivos ao Tool Calling
+
+#### Objetivo_
+
+Permitir que o modelo local Qwen3 solicite a leitura de arquivos Python e produza explicações baseadas no conteúdo real dos arquivos.
+
+#### Implementações___
+
+- Registro da ferramenta `ler_arquivo()` na definição de ferramentas do Ollama.
+- Validação do argumento obrigatório `caminho_arquivo`.
+- Rejeição de caminhos absolutos, navegação com `..` e argumentos inesperados.
+- Integração de `ler_arquivo()` ao executor controlado.
+- Preservação das restrições existentes de acesso a arquivos.
+- Correção de uma regressão identificada pelos testes de `listar_arquivos()`.
+
+#### Experimento prático
+
+Foi criado um arquivo Python contendo a função `calcular_media(notas)`.
+
+O modelo `qwen3:4b-instruct` solicitou a leitura do arquivo e explicou corretamente:
+
+- A utilização de `sum()` para somar os valores.
+- A utilização de `len()` para contar os elementos.
+- O cálculo da média aritmética.
+- O resultado 9 para as notas `[8, 9, 10]`.
+
+#### Validação
+
+Resultado da suíte completa:
+
+- 71 testes aprovados.
+- 1 teste ignorado.
+- Nenhuma falha.
+
+#### Próximos passos___
+
+- Ampliar os testes de segurança das ferramentas.
+- Experimentar análises de código para identificação de possíveis bugs.
+- Avaliar respostas do modelo em diferentes arquivos Python.
+- Planejar a integração gradual ao assistente principal.

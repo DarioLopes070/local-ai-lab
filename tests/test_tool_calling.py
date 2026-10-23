@@ -288,3 +288,113 @@ def test_solicitar_ferramenta_rejeita_resposta_invalida(monkeypatch, mensagem_in
 
     with pytest.raises(ValueError):
         solicitar_ferramenta("Liste os arquivos do projeto.")
+
+
+@pytest.mark.parametrize(
+    "caminho",
+    [
+        "../../segredo.txt",
+        "src/../../segredo.txt",
+        r"C:\Users\usuario\arquivo.py",
+        r"\\servidor\compartilhamento\arquivo.py",
+        "",
+        None,
+    ],
+)
+def test_validar_tool_call_rejeita_caminho_invalido(caminho):
+    chamada = {
+        "function": {
+            "name": "ler_arquivo",
+            "arguments": {
+                "caminho_arquivo": caminho,
+            },
+        }
+    }
+
+    with pytest.raises(ValueError):
+        validar_tool_call(chamada)
+
+
+def test_validar_tool_call_aceita_leitura_autorizavel():
+    chamada = {
+        "function": {
+            "name": "ler_arquivo",
+            "arguments": {
+                "caminho_arquivo": "src/assistant.py",
+            },
+        }
+    }
+
+    nome, argumentos = validar_tool_call(chamada)
+
+    assert nome == "ler_arquivo"
+    assert argumentos == {"caminho_arquivo": "src/assistant.py"}
+
+
+def test_validar_tool_call_rejeita_argumentos_extras():
+    chamada = {
+        "function": {
+            "name": "ler_arquivo",
+            "arguments": {
+                "caminho_arquivo": "README.md",
+                "executar": True,
+            },
+        }
+    }
+
+    with pytest.raises(ValueError):
+        validar_tool_call(chamada)
+
+
+def test_executar_tool_call_le_arquivo_autorizado(tmp_path):
+    """Lê um arquivo dentro da raiz autorizada."""
+
+    arquivo = tmp_path / "exemplo.py"
+    arquivo.write_text(
+        "print('Ola, Local AI Lab!')",
+        encoding="utf-8",
+    )
+
+    chamada = {
+        "function": {
+            "name": "ler_arquivo",
+            "arguments": {
+                "caminho_arquivo": "exemplo.py",
+            },
+        }
+    }
+
+    resultado = executar_tool_call(
+        chamada,
+        raiz_autorizada=tmp_path,
+    )
+
+    assert resultado == "print('Ola, Local AI Lab!')"
+
+
+def test_executar_tool_call_bloqueia_leitura_externa(tmp_path):
+    """Impede a leitura de arquivos fora da raiz autorizada."""
+
+    projeto = tmp_path / "projeto"
+    projeto.mkdir()
+
+    arquivo_externo = tmp_path / "segredo.txt"
+    arquivo_externo.write_text(
+        "INFORMACAO_CONFIDENCIAL",
+        encoding="utf-8",
+    )
+
+    chamada = {
+        "function": {
+            "name": "ler_arquivo",
+            "arguments": {
+                "caminho_arquivo": "../segredo.txt",
+            },
+        }
+    }
+
+    with pytest.raises(ValueError):
+        executar_tool_call(
+            chamada,
+            raiz_autorizada=projeto,
+        )

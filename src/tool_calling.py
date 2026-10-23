@@ -4,7 +4,8 @@ import urllib.request
 from src.assistant import DEFAULT_MODEL, DEFAULT_OLLAMA_URL
 from pathlib import Path
 
-from src.tools.file_tools import listar_arquivos
+from src.tools.file_tools import listar_arquivos, ler_arquivo
+from pathlib import PureWindowsPath
 
 FERRAMENTAS = [
     {
@@ -17,7 +18,32 @@ FERRAMENTAS = [
                 "properties": {},
             },
         },
-    }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "ler_arquivo",
+            "description": (
+                "Lê o conteúdo de um arquivo de texto ou código "
+                "dentro do projeto autorizado. Informe o caminho "
+                "relativo à raiz do projeto."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "caminho_arquivo": {
+                        "type": "string",
+                        "description": (
+                            "Caminho relativo do arquivo, "
+                            "por exemplo: src/assistant.py"
+                        ),
+                    },
+                },
+                "required": ["caminho_arquivo"],
+                "additionalProperties": False,
+            },
+        },
+    },
 ]
 
 
@@ -45,9 +71,33 @@ def validar_tool_call(tool_call):
     if not isinstance(argumentos, dict):
         raise ValueError("Os argumentos da ferramenta devem ser um objeto.")
 
-    # Nossa ferramenta atual não recebe argumentos do modelo.
-    if nome == "listar_arquivos" and argumentos:
-        raise ValueError("A ferramenta listar_arquivos não aceita argumentos.")
+    if nome == "listar_arquivos":
+        if argumentos:
+            raise ValueError("A ferramenta listar_arquivos não aceita argumentos.")
+
+    elif nome == "ler_arquivo":
+        if set(argumentos) != {"caminho_arquivo"}:
+            raise ValueError(
+                "A ferramenta ler_arquivo exige somente " "o argumento caminho_arquivo."
+            )
+
+        caminho = argumentos["caminho_arquivo"]
+
+        if not isinstance(caminho, str) or not caminho.strip():
+            raise ValueError("O caminho do arquivo deve ser um texto não vazio.")
+
+        if "\x00" in caminho:
+            raise ValueError("O caminho contém caracteres inválidos.")
+
+        caminho_windows = PureWindowsPath(caminho)
+
+        if caminho_windows.is_absolute() or caminho_windows.drive:
+            raise ValueError("Caminhos absolutos não são permitidos.")
+
+        partes = caminho.replace("\\", "/").split("/")
+
+        if ".." in partes:
+            raise ValueError("Não é permitido navegar para fora do projeto.")
 
     return nome, argumentos
 
@@ -116,6 +166,14 @@ def executar_tool_call(tool_call, raiz_autorizada):
             raiz,
             raiz_autorizada=raiz,
             max_arquivos=100,
+        )
+
+    if nome == "ler_arquivo":
+        caminho = argumentos["caminho_arquivo"]
+
+        return ler_arquivo(
+            caminho,
+            raiz_autorizada=raiz,
         )
 
     raise ValueError(f"Ferramenta sem executor: {nome}")

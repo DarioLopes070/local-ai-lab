@@ -331,7 +331,7 @@ O módulo `src/tool_calling.py` contém:
 | Ferramenta | Descrição | Disponibilidade |
 | --- | --- | --- |
 | `listar_arquivos()` | Lista arquivos de um diretório autorizado. | Integrada ao Tool Calling |
-| `ler_arquivo()` | Lê arquivos de texto e código com restrições. | Implementada, ainda não integrada ao Tool Calling |
+| `ler_arquivo()` | Lê arquivos de texto e código dentro da raiz autorizada. | Integrada ao Tool Calling |
 
 #### Exemplo de utilização_
 
@@ -347,6 +347,27 @@ resposta = responder_com_ferramenta(
 
 print(resposta)
 ```
+
+#### Exemplo de análise de código
+
+Com o Ollama em execução, a função `responder_com_ferramenta()` também pode solicitar a leitura de um arquivo Python:
+
+```python
+from src.tool_calling import responder_com_ferramenta
+
+resposta = responder_com_ferramenta(
+    "Leia o arquivo exemplo.py usando ler_arquivo e explique sua função.",
+    raiz_autorizada="meu-projeto",
+)
+
+print(resposta)
+```
+
+O caminho informado pelo modelo é validado antes da execução. A ferramenta de leitura aplica restrições adicionais de diretório, extensão, tamanho e arquivos sensíveis.
+
+No experimento realizado em 22/10/2026, o modelo `qwen3:4b-instruct` leu um arquivo de exemplo e explicou corretamente o cálculo da média aritmética.
+
+A integração permanece experimental e não concede permissões de escrita ou execução de comandos.
 
 #### Limitações e segurança
 
@@ -367,7 +388,7 @@ Para executar todos os testes:
 python -m pytest -q
 ```
 
-Na conclusão desta etapa, o Local AI Lab possui **61 testes aprovados e 1 teste ignorado**.
+Na conclusão desta etapa, o Local AI Lab possui **71 testes aprovados e 1 ignorado (22/10/2026).**.
 
 ### Validação
 
