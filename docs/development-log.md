@@ -215,3 +215,38 @@ Resultado da suíte completa:
 - Experimentar análises de código para identificação de possíveis bugs.
 - Avaliar respostas do modelo em diferentes arquivos Python.
 - Planejar a integração gradual ao assistente principal.
+
+### 23/10 — Primeira avaliação de análise estática com Qwen3
+
+#### Objetivo__
+
+Avaliar a capacidade do agente local de identificar possíveis bugs em código Python utilizando a ferramenta `ler_arquivo()`.
+
+#### Experimento
+
+Foi criado um arquivo temporário `calculadora.py`, contendo uma função de cálculo de média com defeitos intencionais.
+
+Os cenários avaliados incluíram:
+
+- Lista vazia, causando `ZeroDivisionError`.
+- Valores `None`, causando `TypeError` e descumprindo a documentação.
+- Valores não numéricos, causando `TypeError`.
+- Entradas numéricas válidas.
+
+#### Resultados
+
+- O modelo identificou corretamente os principais problemas apresentados.
+- Reconheceu a inconsistência entre a docstring e a implementação.
+- Demonstrou limitações na interpretação do contexto da ferramenta.
+- Uma resposta apresentou alteração aparente de um valor de entrada.
+
+#### Documentação
+
+Criado `results/qa-evaluation.md` para registrar os cenários, resultados e limitações observadas.
+
+#### Próximos passos____
+
+- Definir critérios quantitativos de avaliação.
+- Investigar falsos positivos e problemas de fidelidade.
+- Criar novos cenários de análise de código.
+- Comparar resultados de modelos locais.
