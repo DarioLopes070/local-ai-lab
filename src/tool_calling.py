@@ -226,7 +226,7 @@ def responder_com_ferramenta(pergunta, raiz_autorizada):
         "stream": False,
         "options": {
             "temperature": 0,
-            "num_predict": 500,
+            "num_predict": 1200,
         },
     }
 

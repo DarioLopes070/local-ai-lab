@@ -250,3 +250,31 @@ Criado `results/qa-evaluation.md` para registrar os cenários, resultados e limi
 - Investigar falsos positivos e problemas de fidelidade.
 - Criar novos cenários de análise de código.
 - Comparar resultados de modelos locais.
+
+### 26/10 — Primeira análise estruturada de código
+
+#### Objetivo___
+
+Avaliar a capacidade do Qwen3 de identificar defeitos em código Python e apresentar relatórios padronizados.
+
+#### Atividades realizadas
+
+- Criação de cenário com funções de média e desconto.
+- Definição de campos para relatórios de code review.
+- Testes com a ferramenta `ler_arquivo()`.
+- Identificação de uma falha de seleção de caminho pelo modelo.
+- Aumento do limite de geração da resposta final de 500 para 1200 tokens.
+- Avaliação dos resultados utilizando critérios de QA.
+
+#### Resultados_
+
+- 2 de 4 defeitos conhecidos identificados.
+- Relatório estruturado concluído para as duas funções.
+- Identificada explicação tecnicamente incorreta sobre `sum()` e valores `None`.
+- 71 testes automatizados aprovados e 1 ignorado.
+
+#### Próximos passos_____
+
+- Criar `src/code_review.py`.
+- Implementar validação de resultados estruturados em JSON.
+- Automatizar testes para os relatórios de análise.

@@ -31,3 +31,38 @@ The experiment demonstrates promising results for simple Python code review.
 
 However, further evaluation is required to measure reliability,
 false positives, input fidelity, and performance on more complex code.
+
+## Experiment 2 — Structured Code Review
+
+**Date:** 2026-10-26
+**Model:** qwen3:4b-instruct
+**Tool:** ler_arquivo
+**Target:** calculadora.py
+**Generation limit:** 1200 tokens (final response)
+
+### Expected defects
+
+| ID | Defect | Detected |
+| --- | --- | --- |
+| QA-005 | Empty list causes ZeroDivisionError | No |
+| QA-006 | None values are not ignored | Yes |
+| QA-007 | Non-numeric inputs cause TypeError | No |
+| QA-008 | Discount percentage is not validated | Yes |
+
+### Results
+
+- 2 of 4 predefined defects identified (50% coverage).
+- Both functions were analyzed.
+- The response followed the requested structure.
+- The model incorrectly stated that sum() returns None or 0 when given None.
+- The model suggested returning 0 for missing values without a defined business rule.
+- Increasing the final response limit from 500 to 1200 tokens allowed the report to finish.
+
+### Conclusion_
+
+The model can identify some genuine defects and produce
+structured review reports, but technical accuracy and coverage
+remain inconsistent.
+
+Further tests are needed before using these results in
+automated QA workflows.
