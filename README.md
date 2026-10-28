@@ -390,6 +390,61 @@ python -m pytest -q
 
 Na conclusão desta etapa, o Local AI Lab possui **71 testes aprovados e 1 ignorado (22/10/2026).**.
 
+### Análise estruturada de código
+
+O Local AI Lab possui um módulo para validar relatórios de análise de código em formato JSON.
+
+O objetivo é permitir que, futuramente, os resultados produzidos pelo modelo local sejam processados e avaliados automaticamente.
+
+#### Componentes
+
+O arquivo `src/code_review.py` implementa:
+
+- `validar_achado()`: valida os campos de um problema identificado.
+- `validar_relatorio()`: valida relatórios com múltiplos achados.
+- `processar_resposta_json()`: converte respostas JSON em objetos Python e valida sua estrutura.
+
+#### Formato dos resultados
+
+Cada problema identificado deve conter os seguintes campos:
+
+```json
+{
+  "arquivo": "calculadora.py",
+  "funcao": "calcular_media",
+  "problema": "Divisão por zero com lista vazia",
+  "evidencia": "sum(notas) / len(notas)",
+  "severidade": "media",
+  "sugestao": "Tratar listas vazias."
+}
+```
+
+Os achados são agrupados em uma estrutura:
+
+```json
+{
+  "achados": []
+}
+```
+
+Uma lista vazia representa um relatório sem problemas identificados.
+
+#### Regras de validação
+
+- Todos os seis campos de cada achado são obrigatórios.
+- Os campos devem conter textos não vazios.
+- As severidades permitidas são `baixa`, `media` e `alta`.
+- Campos adicionais ou inesperados são rejeitados.
+- JSON inválido ou incompleto gera `ValueError`.
+
+#### Estado atual
+
+A validação é independente do Ollama e possui testes automatizados.
+
+A integração com as respostas do modelo está planejada para uma etapa posterior.
+
+A validação estrutural não garante a correção técnica dos problemas identificados.
+
 ### Validação
 
 Foi realizado um teste manual em que o assistente recebeu

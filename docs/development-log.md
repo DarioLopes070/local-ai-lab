@@ -278,3 +278,42 @@ Avaliar a capacidade do Qwen3 de identificar defeitos em código Python e aprese
 - Criar `src/code_review.py`.
 - Implementar validação de resultados estruturados em JSON.
 - Automatizar testes para os relatórios de análise.
+
+### 27/10 — Implementação da validação de relatórios JSON
+
+#### Objetivo____
+
+Criar uma camada independente para validar relatórios estruturados de análise de código produzidos por modelos de IA.
+
+#### Implementações____
+
+- Criação de `src/code_review.py`.
+- Implementação de `validar_achado()`.
+- Implementação de `validar_relatorio()`.
+- Implementação de `processar_resposta_json()`.
+- Definição dos seis campos obrigatórios de cada achado.
+- Definição das severidades permitidas: baixa, media e alta.
+- Tratamento de JSON inválido, estruturas incompletas e campos inesperados.
+
+#### Testes
+
+Criado `tests/test_code_review.py` com 24 casos de teste.
+
+Resultado da suíte completa:
+
+- 95 testes aprovados.
+- 1 teste ignorado.
+- Nenhuma falha.
+
+#### Limitações
+
+- O módulo ainda não está integrado ao Ollama.
+- A validação verifica somente a estrutura dos resultados.
+- A precisão técnica dos achados continuará sendo avaliada separadamente.
+
+#### Próximos passos______
+
+- Integrar a geração de relatórios JSON ao fluxo do Ollama.
+- Validar respostas reais do Qwen3.
+- Tratar respostas malformadas ou incompletas.
+- Evoluir a avaliação quantitativa de code review.
