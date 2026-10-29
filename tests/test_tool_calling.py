@@ -398,3 +398,133 @@ def test_executar_tool_call_bloqueia_leitura_externa(tmp_path):
             chamada,
             raiz_autorizada=projeto,
         )
+
+
+def test_responder_com_ferramenta_envia_formato_json(monkeypatch, tmp_path):
+    """Verifica se o formato JSON é enviado ao Ollama."""
+
+    import json
+    from unittest.mock import MagicMock
+
+    from src.tool_calling import responder_com_ferramenta
+
+    (tmp_path / "exemplo.py").write_text(
+        "def somar(a, b):\n    return a + b\n",
+        encoding="utf-8",
+    )
+
+    primeira_resposta = {
+        "content": "",
+        "tool_calls": [
+            {
+                "function": {
+                    "name": "ler_arquivo",
+                    "arguments": {"caminho_arquivo": "exemplo.py"},
+                }
+            }
+        ],
+    }
+
+    monkeypatch.setattr(
+        "src.tool_calling.solicitar_ferramenta",
+        lambda pergunta: primeira_resposta,
+    )
+
+    def urlopen_simulado(requisicao, timeout):
+        payload = json.loads(requisicao.data.decode("utf-8"))
+
+        assert payload["format"] == "json"
+        assert payload["messages"][-1]["role"] == "tool"
+        assert "def somar" in payload["messages"][-1]["content"]
+
+        resposta = MagicMock()
+        resposta.read.return_value = json.dumps(
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": '{"achados": []}',
+                }
+            }
+        ).encode("utf-8")
+
+        contexto = MagicMock()
+        contexto.__enter__.return_value = resposta
+
+        return contexto
+
+    monkeypatch.setattr(
+        "src.tool_calling.urllib.request.urlopen",
+        urlopen_simulado,
+    )
+
+    resultado = responder_com_ferramenta(
+        "Leia exemplo.py e analise o código.",
+        raiz_autorizada=tmp_path,
+        formato_json=True,
+    )
+
+    assert resultado == '{"achados": []}'
+
+
+def test_responder_com_ferramenta_preserva_modo_texto(monkeypatch, tmp_path):
+    """Verifica que o modo tradicional não exige JSON."""
+
+    import json
+    from unittest.mock import MagicMock
+
+    from src.tool_calling import responder_com_ferramenta
+
+    (tmp_path / "exemplo.py").write_text(
+        "print('Ola, Local AI Lab!')",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        "src.tool_calling.solicitar_ferramenta",
+        lambda pergunta: {
+            "content": "",
+            "tool_calls": [
+                {
+                    "function": {
+                        "name": "ler_arquivo",
+                        "arguments": {
+                            "caminho_arquivo": "exemplo.py",
+                        },
+                    }
+                }
+            ],
+        },
+    )
+
+    def urlopen_simulado(requisicao, timeout):
+        payload = json.loads(requisicao.data.decode("utf-8"))
+
+        assert "format" not in payload
+        assert payload["messages"][-1]["role"] == "tool"
+
+        resposta = MagicMock()
+        resposta.read.return_value = json.dumps(
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": "O arquivo imprime uma mensagem.",
+                }
+            }
+        ).encode("utf-8")
+
+        contexto = MagicMock()
+        contexto.__enter__.return_value = resposta
+
+        return contexto
+
+    monkeypatch.setattr(
+        "src.tool_calling.urllib.request.urlopen",
+        urlopen_simulado,
+    )
+
+    resultado = responder_com_ferramenta(
+        "Explique o arquivo exemplo.py.",
+        raiz_autorizada=tmp_path,
+    )
+
+    assert resultado == "O arquivo imprime uma mensagem."

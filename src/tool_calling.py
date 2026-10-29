@@ -179,7 +179,11 @@ def executar_tool_call(tool_call, raiz_autorizada):
     raise ValueError(f"Ferramenta sem executor: {nome}")
 
 
-def responder_com_ferramenta(pergunta, raiz_autorizada):
+def responder_com_ferramenta(
+    pergunta,
+    raiz_autorizada,
+    formato_json=False,
+):
     """Executa um ciclo controlado de tool calling com o Ollama."""
 
     # Primeiro, o modelo decide se precisa de uma ferramenta.
@@ -229,6 +233,9 @@ def responder_com_ferramenta(pergunta, raiz_autorizada):
             "num_predict": 1200,
         },
     }
+
+    if formato_json:
+        payload["format"] = "json"
 
     requisicao = urllib.request.Request(
         DEFAULT_OLLAMA_URL,

@@ -467,6 +467,50 @@ Essas verificações permitem rejeitar relatórios que mencionam funções inexi
 
 Na validação de 29/10/2026, a suíte completa registrou **102 testes aprovados e 1 ignorado**.
 
+#### Geração de JSON com Ollama
+
+O fluxo experimental de Tool Calling agora oferece dois modos de resposta:
+
+- **Texto:** comportamento padrão de `responder_com_ferramenta()`.
+- **JSON:** ativado pelo argumento `formato_json=True`.
+
+O módulo `src/code_review.py` utiliza o modo JSON para solicitar relatórios estruturados ao Qwen3.
+
+Exemplo:
+
+```python
+from src.code_review import analisar_codigo_com_validacao
+
+relatorio = analisar_codigo_com_validacao(
+    pergunta=(
+        "Leia calculadora.py e identifique possíveis bugs. "
+        "Utilize evidências literais do código."
+    ),
+    raiz_autorizada="meu-projeto",
+    caminho_arquivo="calculadora.py",
+)
+
+print(relatorio)
+```
+
+O fluxo realiza:
+
+1. Leitura do arquivo dentro da raiz autorizada.
+2. Solicitação de análise ao Ollama com Tool Calling.
+3. Geração de resposta em formato JSON.
+4. Validação da estrutura do relatório.
+5. Verificação de funções existentes utilizando `ast`.
+6. Verificação textual das evidências.
+
+**Limitações:**
+
+- A geração de JSON não garante a precisão técnica do modelo.
+- Relatórios sem achados continuam sendo aceitos, mesmo quando existem bugs.
+- Evidências literais não comprovam, isoladamente, que um defeito é verdadeiro.
+- A implementação não executa nem modifica o código analisado.
+
+Na última validação, foram registrados **104 testes aprovados e 1 ignorado**.
+
 ### Validação
 
 Foi realizado um teste manual em que o assistente recebeu

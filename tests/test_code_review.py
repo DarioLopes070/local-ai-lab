@@ -175,10 +175,15 @@ def test_validar_resposta_code_review():
 def test_analisar_codigo_retorna_relatorio_validado(monkeypatch, tmp_path):
     """Testa a integração sem chamar o Ollama."""
 
-    def resposta_simulada(pergunta, raiz_autorizada):
+    def resposta_simulada(
+        pergunta,
+        raiz_autorizada,
+        formato_json=False,
+    ):
         assert "exclusivamente" in pergunta
         assert "calculadora.py" in pergunta
         assert raiz_autorizada == tmp_path
+        assert formato_json is True
 
         return '{"achados": []}'
 

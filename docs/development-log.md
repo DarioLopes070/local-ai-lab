@@ -360,3 +360,38 @@ A nova validação foi desenvolvida para rejeitar esse tipo de inconsistência.
 - Testar `analisar_codigo_com_validacao()` com o Ollama real.
 - Melhorar a associação entre evidências e funções.
 - Ampliar a avaliação quantitativa de QA.
+
+### 29/10 — Integração do formato JSON ao Tool Calling
+
+#### Objetivo______
+
+Melhorar a geração de relatórios estruturados de análise de código utilizando Qwen3 e Ollama.
+
+#### Implementações______
+
+- Adicionado o argumento opcional `formato_json` em `responder_com_ferramenta()`.
+- Integração de `format: "json"` na segunda requisição ao Ollama.
+- Atualização de `analisar_codigo()` para solicitar respostas JSON.
+- Preservação do modo tradicional de respostas em texto.
+- Criação de testes automatizados para os dois modos.
+
+#### Experimentos
+
+- O modelo produziu relatórios JSON vazios em algumas execuções.
+- Em outro experimento, identificou dois defeitos conhecidos, mas utilizou severidades e evidências fora do padrão.
+- Com instruções mais específicas, produziu um JSON com severidade válida e evidência literal.
+- A análise ainda apresentou uma interpretação incorreta sobre o comportamento de `None` em Python.
+- O validador estrutural e textual aceitou esse relatório, demonstrando a necessidade de avaliação semântica.
+
+#### Resultados___
+
+- 104 testes aprovados.
+- 1 teste ignorado.
+- Nenhuma falha.
+
+#### Próximos passos________
+
+- Melhorar a confiabilidade das análises.
+- Implementar avaliações de QA com defeitos conhecidos.
+- Aprimorar a validação de evidências.
+- Comparar resultados entre diferentes execuções e modelos locais.

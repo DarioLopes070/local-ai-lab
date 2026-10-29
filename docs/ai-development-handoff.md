@@ -237,6 +237,61 @@ Executar um experimento real com `analisar_codigo_com_validacao()`, verificando 
 - Não executar código sugerido pelo modelo automaticamente.
 - Atualizar README, Development Log e este documento ao concluir cada etapa.
 
+## Atualização — 29/10/2026 — JSON no Tool Calling
+
+### Implementação
+
+O módulo `src/tool_calling.py` agora permite solicitar respostas JSON na segunda chamada ao Ollama:
+
+```python
+responder_com_ferramenta(
+    pergunta,
+    raiz_autorizada,
+    formato_json=True,
+)
+```
+
+O modo JSON é utilizado por `analisar_codigo()` em `src/code_review.py`.
+
+O modo tradicional continua disponível por padrão, utilizando `formato_json=False`.
+
+### Experimentos e resultados
+
+- O Qwen3 conseguiu solicitar `ler_arquivo()` corretamente.
+- A ferramenta retornou o conteúdo real de `calculadora.py`.
+- O parâmetro `format: "json"` foi testado na segunda requisição ao Ollama.
+- O modelo identificou defeitos conhecidos em alguns experimentos.
+- Foram observados relatórios vazios e interpretações tecnicamente incorretas.
+- A validação estrutural e textual não garante que um bug seja verdadeiro.
+
+### Testes_
+
+Última validação:
+
+- 104 testes aprovados.
+- 1 teste ignorado.
+- Nenhuma falha.
+
+### Próxima atividade_
+
+Desenvolver avaliações quantitativas de QA para medir a capacidade do modelo de identificar defeitos conhecidos.
+
+Prioridades:
+
+1. Criar um conjunto controlado de arquivos Python com bugs.
+2. Definir os resultados esperados para cada cenário.
+3. Comparar os achados do Qwen3 com os defeitos conhecidos.
+4. Medir acertos, omissões e falsos positivos.
+5. Registrar os resultados em `results/qa-evaluation.md`.
+
+### Regras de continuidade_
+
+- Trabalhar uma implementação e um teste por vez.
+- Preservar o acesso somente de leitura.
+- Não executar automaticamente código fornecido pelo modelo.
+- Manter README, Development Log e este documento sincronizados.
+- Utilizar o GitHub como fonte principal de continuidade.
+
 ## 11. Como o assistente deve colaborar
 
 - **Responder em português do Brasil**, de forma objetiva e didática.

@@ -109,6 +109,7 @@ Não execute ou modifique arquivos.
     resposta = responder_com_ferramenta(
         pergunta_completa,
         raiz_autorizada=raiz_autorizada,
+        formato_json=True,
     )
 
     return validar_resposta_code_review(resposta)
