@@ -445,6 +445,28 @@ A integração com as respostas do modelo está planejada para uma etapa posteri
 
 A validação estrutural não garante a correção técnica dos problemas identificados.
 
+#### Validação de evidências do code review
+
+O módulo `src/code_review.py` também implementa verificações para comparar os achados produzidos pelo modelo com o código-fonte real.
+
+Funções adicionadas:
+
+- `validar_resposta_code_review()`: processa e valida a resposta JSON.
+- `analisar_codigo()`: solicita uma análise utilizando o fluxo de Tool Calling existente.
+- `validar_funcoes_relatorio()`: utiliza `ast` para verificar a existência das funções mencionadas e procura as evidências textuais no código.
+- `analisar_codigo_com_validacao()`: combina a análise com a leitura autorizada do arquivo e as verificações adicionais.
+
+Essas verificações permitem rejeitar relatórios que mencionam funções inexistentes ou evidências ausentes do código analisado.
+
+**Limitações atuais:**
+
+- A presença de uma evidência no arquivo não garante que o problema relatado seja verdadeiro.
+- A comparação textual pode rejeitar evidências corretas com formatação diferente.
+- A validação ainda não comprova que a evidência pertence à função indicada.
+- A análise estruturada continua experimental e sujeita a erros do modelo.
+
+Na validação de 29/10/2026, a suíte completa registrou **102 testes aprovados e 1 ignorado**.
+
 ### Validação
 
 Foi realizado um teste manual em que o assistente recebeu

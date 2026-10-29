@@ -251,6 +251,8 @@ Criado `results/qa-evaluation.md` para registrar os cenários, resultados e limi
 - Criar novos cenários de análise de código.
 - Comparar resultados de modelos locais.
 
+## Semana de 26 a 30 de outubro de 2026
+
 ### 26/10 — Primeira análise estruturada de código
 
 #### Objetivo___
@@ -317,3 +319,44 @@ Resultado da suíte completa:
 - Validar respostas reais do Qwen3.
 - Tratar respostas malformadas ou incompletas.
 - Evoluir a avaliação quantitativa de code review.
+
+### 29/10 — Integração de code review e validação de evidências
+
+#### Objetivo_____
+
+Integrar a análise estruturada de código ao Ollama e fortalecer a validação dos resultados produzidos pelo modelo.
+
+#### Implementações_____
+
+- Criação de um ponto de entrada para validar respostas JSON.
+- Integração experimental de `analisar_codigo()` com Tool Calling.
+- Implementação de `validar_funcoes_relatorio()` utilizando `ast`.
+- Verificação da presença textual das evidências no código-fonte.
+- Implementação de `analisar_codigo_com_validacao()`.
+- Criação de testes para funções existentes, inexistentes e evidências inventadas.
+
+#### Experimento com Qwen3
+
+O modelo produziu um relatório JSON estruturalmente válido, mas mencionou uma função `dividir()` inexistente no arquivo analisado.
+
+Uma execução de diagnóstico confirmou que a ferramenta `ler_arquivo()` conseguia recuperar corretamente o conteúdo de `calculadora.py`.
+
+A nova validação foi desenvolvida para rejeitar esse tipo de inconsistência.
+
+#### Resultados__
+
+- 102 testes aprovados.
+- 1 teste ignorado.
+- Nenhuma falha.
+
+#### Limitações_
+
+- JSON válido não garante precisão técnica.
+- A verificação de evidências ainda é textual.
+- A existência de uma função não comprova que o bug identificado seja real.
+
+#### Próximos passos_______
+
+- Testar `analisar_codigo_com_validacao()` com o Ollama real.
+- Melhorar a associação entre evidências e funções.
+- Ampliar a avaliação quantitativa de QA.

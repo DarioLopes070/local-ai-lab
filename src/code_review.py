@@ -1,4 +1,5 @@
 import json
+import ast
 
 """Estruturas e validações para análises de código com IA."""
 
@@ -67,3 +68,105 @@ def processar_resposta_json(resposta):
         raise ValueError("O modelo retornou um JSON inválido.") from erro
 
     return validar_relatorio(relatorio)
+
+
+def validar_resposta_code_review(resposta_modelo):
+    """Processa e valida um relatório JSON produzido pelo modelo."""
+
+    return processar_resposta_json(resposta_modelo)
+
+
+def analisar_codigo(pergunta, raiz_autorizada):
+    """Solicita uma análise ao Ollama e valida o relatório JSON."""
+
+    from src.tool_calling import responder_com_ferramenta
+
+    instrucoes = """
+Responda exclusivamente com um objeto JSON válido.
+
+Estrutura obrigatória:
+{
+    "achados": [
+        {
+            "arquivo": "nome_do_arquivo.py",
+            "funcao": "nome_da_funcao",
+            "problema": "descricao do problema",
+            "evidencia": "trecho do codigo",
+            "severidade": "baixa",
+            "sugestao": "correcao recomendada"
+        }
+    ]
+}
+
+Use somente as severidades: baixa, media ou alta.
+Se nenhum problema for identificado, retorne {"achados": []}.
+Não utilize Markdown nem blocos de código.
+Não execute ou modifique arquivos.
+"""
+
+    pergunta_completa = f"{instrucoes}\n\n{pergunta}"
+
+    resposta = responder_com_ferramenta(
+        pergunta_completa,
+        raiz_autorizada=raiz_autorizada,
+    )
+
+    return validar_resposta_code_review(resposta)
+
+
+def validar_funcoes_relatorio(relatorio, codigo_fonte):
+    """Verifica se as funções citadas existem no código analisado."""
+
+    validar_relatorio(relatorio)
+
+    arvore = ast.parse(codigo_fonte)
+
+    funcoes_existentes = {
+        node.name
+        for node in ast.walk(arvore)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+
+    for achado in relatorio["achados"]:
+        nome_funcao = achado["funcao"]
+
+        if nome_funcao not in funcoes_existentes:
+            raise ValueError(f"Função não encontrada no código: {nome_funcao}")
+
+        evidencia = achado["evidencia"]
+
+        if evidencia.strip() not in codigo_fonte:
+            raise ValueError(f"Evidência não encontrada no código: {evidencia}")
+
+    return relatorio
+
+
+def analisar_codigo_com_validacao(
+    pergunta,
+    raiz_autorizada,
+    caminho_arquivo,
+):
+    """Analisa código e valida os achados contra o arquivo real."""
+
+    from src.tools.file_tools import ler_arquivo
+
+    # O caminho é definido por quem utiliza a função,
+    # não pelo modelo de linguagem.
+    codigo_fonte = ler_arquivo(
+        caminho_arquivo,
+        raiz_autorizada=raiz_autorizada,
+    )
+
+    relatorio = analisar_codigo(
+        pergunta,
+        raiz_autorizada=raiz_autorizada,
+    )
+
+    for achado in relatorio["achados"]:
+        if achado["arquivo"] != caminho_arquivo:
+            raise ValueError("O relatório menciona um arquivo diferente do analisado.")
+
+    return validar_funcoes_relatorio(
+        relatorio,
+        codigo_fonte,
+    )

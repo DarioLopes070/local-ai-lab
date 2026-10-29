@@ -1,7 +1,7 @@
 # Local AI Lab — AI Development Handoff
 
 **Atualizado em:** 29/10/2026  
-**Repositório:** https://github.com/DarioLopes070/local-ai-lab  
+**Repositório:** <https://github.com/DarioLopes070/local-ai-lab>
 **Branch principal:** `main`  
 **Idioma de trabalho:** português do Brasil (`pt-BR`)
 
@@ -194,6 +194,49 @@ Sequência sugerida, em incrementos pequenos:
 
 Este planejamento é uma referência, não uma obrigação rígida. Priorizar concluir a integração pendente com segurança em vez de apressar as tarefas seguintes.
 
+## Atualização — 29/10/2026
+
+### Estado atual
+
+O Local AI Lab possui uma integração experimental entre Tool Calling e análise estruturada de código.
+
+O módulo `src/code_review.py` contém:
+
+- `validar_achado()`
+- `validar_relatorio()`
+- `processar_resposta_json()`
+- `validar_resposta_code_review()`
+- `analisar_codigo()`
+- `validar_funcoes_relatorio()`
+- `analisar_codigo_com_validacao()`
+
+### Experimento relevante
+
+O Qwen3 retornou um relatório JSON válido mencionando uma função inexistente (`dividir`).
+
+A ferramenta de leitura foi verificada separadamente e retornou corretamente o conteúdo de `calculadora.py`, contendo `calcular_media()`.
+
+Foram implementadas verificações adicionais para rejeitar funções e evidências inexistentes.
+
+### Testes
+
+Última validação geral:
+
+- 102 testes aprovados.
+- 1 teste ignorado.
+
+### Próxima atividade
+
+Executar um experimento real com `analisar_codigo_com_validacao()`, verificando se o Python rejeita automaticamente achados inconsistentes produzidos pelo Qwen3.
+
+### Regras de continuidade
+
+- Desenvolver uma etapa por vez.
+- Criar testes automatizados antes de ampliar funcionalidades.
+- Preservar o acesso somente de leitura.
+- Não executar código sugerido pelo modelo automaticamente.
+- Atualizar README, Development Log e este documento ao concluir cada etapa.
+
 ## 11. Como o assistente deve colaborar
 
 - **Responder em português do Brasil**, de forma objetiva e didática.
@@ -208,4 +251,4 @@ Este planejamento é uma referência, não uma obrigação rígida. Priorizar co
 
 ## 12. Mensagem inicial para outro assistente
 
-> Estou desenvolvendo o projeto open source Local AI Lab, em Python, no Windows 11, com Ollama e Qwen3 local. Leia integralmente este handoff e consulte o código atual do repositório https://github.com/DarioLopes070/local-ai-lab antes de sugerir mudanças. A linha de base verificada foi 95 testes aprovados e 1 ignorado. A próxima tarefa é integrar a saída JSON de análise de código com o fluxo de Tool Calling existente, reaproveitando `src/code_review.py` e mantendo acesso apenas de leitura. Trabalhe comigo passo a passo: forneça somente a primeira alteração, seu teste e o comando exato no PowerShell; espere o resultado antes de avançar. Não invente código ou arquivos que não tenha verificado.
+> Estou desenvolvendo o projeto open source Local AI Lab, em Python, no Windows 11, com Ollama e Qwen3 local. Leia integralmente este handoff e consulte o código atual do repositório <https://github.com/DarioLopes070/local-ai-lab> antes de sugerir mudanças. A linha de base verificada foi 95 testes aprovados e 1 ignorado. A próxima tarefa é integrar a saída JSON de análise de código com o fluxo de Tool Calling existente, reaproveitando `src/code_review.py` e mantendo acesso apenas de leitura. Trabalhe comigo passo a passo: forneça somente a primeira alteração, seu teste e o comando exato no PowerShell; espere o resultado antes de avançar. Não invente código ou arquivos que não tenha verificado.
