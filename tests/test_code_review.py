@@ -342,9 +342,14 @@ def test_analisar_codigo_com_validacao_aceita_relatorio_valido(monkeypatch, tmp_
         ]
     }
 
+    def analisar_simulada(pergunta, raiz_autorizada):
+        assert "def calcular_media(notas):" in pergunta
+        assert "return sum(notas) / len(notas)" in pergunta
+        return relatorio_simulado
+
     monkeypatch.setattr(
         "src.code_review.analisar_codigo",
-        lambda pergunta, raiz_autorizada: relatorio_simulado,
+        analisar_simulada,
     )
 
     resultado = analisar_codigo_com_validacao(

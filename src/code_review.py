@@ -158,8 +158,14 @@ def analisar_codigo_com_validacao(
         raiz_autorizada=raiz_autorizada,
     )
 
+    pergunta_com_codigo = (
+        f"{pergunta}\n\n"
+        f"Conteúdo de {caminho_arquivo}:\n"
+        f"python\n{codigo_fonte}\n"
+    )
+
     relatorio = analisar_codigo(
-        pergunta,
+        pergunta_com_codigo,
         raiz_autorizada=raiz_autorizada,
     )
 

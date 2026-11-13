@@ -395,3 +395,11 @@ Melhorar a geração de relatórios estruturados de análise de código utilizan
 - Implementar avaliações de QA com defeitos conhecidos.
 - Aprimorar a validação de evidências.
 - Comparar resultados entre diferentes execuções e modelos locais.
+
+### 2026-11-13 — Atualização do fluxo e dos testes de QA
+
+`analisar_codigo_com_validacao()` agora inclui o conteúdo do arquivo lido na pergunta enviada para análise. O teste correspondente verifica que o código está presente nessa pergunta.
+
+A suíte foi executada após a alteração e novamente após a remoção dos materiais temporários: **104 testes aprovados e 1 ignorado** em ambas as execuções. Nos experimentos de seleção de ferramenta, `qwen3:4b-instruct` escolheu `listar_arquivos` em 5/5 execuções quando as duas ferramentas estavam disponíveis; com apenas `ler_arquivo`, solicitou essa ferramenta em 5/5. Esses resultados se aplicam às condições testadas e não demonstram comportamento geral.
+
+A validação textual aceita evidências parciais por correspondência de substring e não comprova a correção semântica dos achados.

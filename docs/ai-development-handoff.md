@@ -307,3 +307,11 @@ Prioridades:
 ## 12. Mensagem inicial para outro assistente
 
 > Estou desenvolvendo o projeto open source Local AI Lab, em Python, no Windows 11, com Ollama e Qwen3 local. Leia integralmente este handoff e consulte o código atual do repositório <https://github.com/DarioLopes070/local-ai-lab> antes de sugerir mudanças. A linha de base verificada foi 95 testes aprovados e 1 ignorado. A próxima tarefa é integrar a saída JSON de análise de código com o fluxo de Tool Calling existente, reaproveitando `src/code_review.py` e mantendo acesso apenas de leitura. Trabalhe comigo passo a passo: forneça somente a primeira alteração, seu teste e o comando exato no PowerShell; espere o resultado antes de avançar. Não invente código ou arquivos que não tenha verificado.
+
+### Estado atual — 2026-11-13
+
+- `analisar_codigo_com_validacao()` inclui o conteúdo do arquivo na pergunta enviada ao analisador; o teste verifica essa inclusão.
+- Última execução da suíte, após a limpeza dos materiais temporários: **104 passed, 1 skipped** em **1.48s**.
+- Os testes comparativos de ferramentas indicam dificuldade de seleção do `qwen3:4b-instruct` na condição com duas ferramentas, dentro do prompt e das execuções documentadas.
+- A validação textual de evidências é baseada em substring e pode aceitar trechos incompletos; não comprova a correção semântica dos achados.
+- Alterações ainda não commitadas: revisar `git diff` e decidir sobre o commit.
