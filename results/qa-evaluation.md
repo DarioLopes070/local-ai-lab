@@ -132,7 +132,6 @@ Os relatórios incluíram a evidência parcial `return preco - (preco * percentu
 
 As cinco repetições por condição tiveram saídas idênticas neste experimento. Como o fluxo configura temperatura 0, elas não devem ser interpretadas como amostras independentes nem como medida de variabilidade.
 
-
 ### 2026-11-13 — Suíte de testes após os experimentos
 
 Execução local de `python -m pytest -q`: **104 passed, 1 skipped** em **2.47s**.
@@ -140,3 +139,11 @@ Execução local de `python -m pytest -q`: **104 passed, 1 skipped** em **2.47s*
 ### 2026-11-13 — Reexecução da suíte após limpeza
 
 Após a remoção dos arquivos e da pasta temporária dos experimentos, `python -m pytest -q` foi executado novamente: **104 passed, 1 skipped** em **1.48s**. `git diff --check` não apontou erros; permaneceu apenas o aviso do Git sobre conversão de LF para CRLF.
+
+### 2026-11-13 — Validação reforçada do relatório de revisão
+
+A validação agora rejeita relatórios sem achados. As evidências precisam corresponder a uma ou mais linhas completas e contíguas dentro da função citada; trechos parciais e linhas pertencentes a outra função são rejeitados. A listagem de arquivos também passou a filtrar pelas extensões permitidas.
+
+Na execução local de `python -m pytest`, foram obtidos **108 passed, 1 skipped** em **0.85s**. `git diff --check` não reportou erros de whitespace; foram exibidos apenas avisos de conversão LF/CRLF do Git.
+
+Esta execução validou a suíte automatizada, não uma nova chamada ao modelo. A validação de linhas confirma correspondência textual, não a correção semântica dos achados. Como relatórios vazios são rejeitados, uma revisão legítima sem problemas identificados não pode ser representada como resultado válido no formato atual.

@@ -50,6 +50,9 @@ def validar_relatorio(relatorio):
     if not isinstance(achados, list):
         raise ValueError("O campo 'achados' deve ser uma lista.")
 
+    if not achados:
+        raise ValueError("O relatório deve conter pelo menos um achado.")
+
     for achado in achados:
         validar_achado(achado)
 
@@ -99,7 +102,7 @@ Estrutura obrigatória:
 }
 
 Use somente as severidades: baixa, media ou alta.
-Se nenhum problema for identificado, retorne {"achados": []}.
+Inclua apenas problemas sustentados por evidências reais; não invente achados.
 Não utilize Markdown nem blocos de código.
 Não execute ou modifique arquivos.
 """
@@ -116,31 +119,53 @@ Não execute ou modifique arquivos.
 
 
 def validar_funcoes_relatorio(relatorio, codigo_fonte):
-    """Verifica se as funções citadas existem no código analisado."""
+    """Valida se as evidências são linhas completas da função citada."""
 
     validar_relatorio(relatorio)
-
     arvore = ast.parse(codigo_fonte)
-
-    funcoes_existentes = {
-        node.name
-        for node in ast.walk(arvore)
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-    }
+    linhas_codigo = codigo_fonte.splitlines()
 
     for achado in relatorio["achados"]:
         nome_funcao = achado["funcao"]
+        nos_funcao = [
+            node
+            for node in ast.walk(arvore)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and node.name == nome_funcao
+        ]
 
-        if nome_funcao not in funcoes_existentes:
+        if not nos_funcao:
             raise ValueError(f"Função não encontrada no código: {nome_funcao}")
 
         evidencia = achado["evidencia"]
+        evidencia_linhas = [
+            linha.strip() for linha in evidencia.strip().splitlines()
+        ]
+        evidencia_encontrada = False
 
-        if evidencia.strip() not in codigo_fonte:
-            raise ValueError(f"Evidência não encontrada no código: {evidencia}")
+        if evidencia_linhas and all(evidencia_linhas):
+            for no_funcao in nos_funcao:
+                linhas_funcao = [
+                    linha.strip()
+                    for linha in linhas_codigo[
+                        no_funcao.lineno - 1:no_funcao.end_lineno
+                    ]
+                ]
+                tamanho = len(evidencia_linhas)
+                if any(
+                    linhas_funcao[indice:indice + tamanho] == evidencia_linhas
+                    for indice in range(len(linhas_funcao) - tamanho + 1)
+                ):
+                    evidencia_encontrada = True
+                    break
+
+        if not evidencia_encontrada:
+            raise ValueError(
+                "Evidência não encontrada como linhas completas "
+                f"dentro da função: {evidencia}"
+            )
 
     return relatorio
-
 
 def analisar_codigo_com_validacao(
     pergunta,

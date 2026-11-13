@@ -313,5 +313,14 @@ Prioridades:
 - `analisar_codigo_com_validacao()` inclui o conteúdo do arquivo na pergunta enviada ao analisador; o teste verifica essa inclusão.
 - Última execução da suíte, após a limpeza dos materiais temporários: **104 passed, 1 skipped** em **1.48s**.
 - Os testes comparativos de ferramentas indicam dificuldade de seleção do `qwen3:4b-instruct` na condição com duas ferramentas, dentro do prompt e das execuções documentadas.
-- A validação textual de evidências é baseada em substring e pode aceitar trechos incompletos; não comprova a correção semântica dos achados.
+- A validação de evidências exige linhas completas e contíguas na função citada; a checagem textual não comprova a correção semântica dos achados.
 - Alterações ainda não commitadas: revisar `git diff` e decidir sobre o commit.
+
+### Estado atual — 2026-11-13 — QA da validação
+
+- A validação rejeita relatórios sem achados e exige evidências de linhas completas e contíguas na função citada.
+- A listagem de arquivos filtra pelas extensões permitidas.
+- Última suíte local: **108 passed, 1 skipped** em **0.85s**; `git diff --check` sem erros de whitespace, com avisos de LF/CRLF do Git.
+- Não houve nova chamada real ao modelo nesta validação. A checagem de evidência textual não comprova correção semântica.
+- Limitação: o formato atual rejeita também uma revisão válida sem achados.
+- Alterações ainda não commitadas; revisar o diff antes do commit. O envio ao GitHub permanece pendente de confirmação.

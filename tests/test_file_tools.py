@@ -284,3 +284,14 @@ def test_ler_arquivo_bloqueia_diretorios_sensiveis(tmp_path, diretorio):
             f"{diretorio}/segredo.txt",
             raiz_autorizada=tmp_path,
         )
+
+
+def test_listar_arquivos_ignora_extensoes_nao_permitidas(tmp_path):
+    """Lista somente arquivos com extensões autorizadas."""
+
+    (tmp_path / "permitido.py").write_text("x = 1", encoding="utf-8")
+    (tmp_path / "nao_permitido.csv").write_text("segredo,dado", encoding="utf-8")
+
+    arquivos = listar_arquivos(tmp_path, raiz_autorizada=tmp_path)
+
+    assert arquivos == ["permitido.py"]

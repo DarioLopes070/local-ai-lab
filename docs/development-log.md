@@ -402,4 +402,10 @@ Melhorar a geração de relatórios estruturados de análise de código utilizan
 
 A suíte foi executada após a alteração e novamente após a remoção dos materiais temporários: **104 testes aprovados e 1 ignorado** em ambas as execuções. Nos experimentos de seleção de ferramenta, `qwen3:4b-instruct` escolheu `listar_arquivos` em 5/5 execuções quando as duas ferramentas estavam disponíveis; com apenas `ler_arquivo`, solicitou essa ferramenta em 5/5. Esses resultados se aplicam às condições testadas e não demonstram comportamento geral.
 
-A validação textual aceita evidências parciais por correspondência de substring e não comprova a correção semântica dos achados.
+Antes desta alteração, a validação textual aceitava evidências parciais por substring; ela não comprovava a correção semântica dos achados.
+
+### 2026-11-13 — Reforço da validação da revisão de código
+
+A validação do relatório passou a rejeitar listas de achados vazias e exigir evidências formadas por linhas completas e contíguas dentro da função indicada. Foram adicionados testes para evidência parcial, evidência de outra função e listagem limitada às extensões permitidas.
+
+Resultado local: **108 passed, 1 skipped** em **0.85s**. `git diff --check` não reportou erros de whitespace; os avisos restantes referem-se à conversão LF/CRLF do Git. Não foi executada uma nova avaliação do modelo. Relatórios vazios, inclusive quando nenhum defeito é encontrado, continuam sem representação válida no formato atual.

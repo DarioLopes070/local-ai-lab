@@ -83,6 +83,9 @@ def listar_arquivos(diretorio_base, max_arquivos=100, raiz_autorizada=None):
                 if caminho.name in ARQUIVOS_IGNORADOS:
                     continue
 
+                if caminho.suffix.lower() not in EXTENSOES_PERMITIDAS:
+                    continue
+
                 relativo = caminho.relative_to(base)
                 arquivos.append(relativo.as_posix())
 

@@ -88,14 +88,10 @@ def test_validar_relatorio_com_multiplos_achados():
 
 
 def test_validar_relatorio_sem_achados():
-    """Aceita um relatório sem problemas identificados."""
+    """Rejeita relatórios sem achados."""
 
-    relatorio = {"achados": []}
-
-    resultado = validar_relatorio(relatorio)
-
-    assert resultado == relatorio
-
+    with pytest.raises(ValueError, match="pelo menos um achado"):
+        validar_relatorio({"achados": []})
 
 @pytest.mark.parametrize(
     "relatorio",
@@ -115,7 +111,6 @@ def test_validar_relatorio_rejeita_dados_invalidos(relatorio):
 
     with pytest.raises(ValueError):
         validar_relatorio(relatorio)
-
 
 def test_processar_resposta_json_valida():
     """Converte JSON válido em um relatório Python."""
@@ -163,29 +158,27 @@ def test_processar_resposta_json_rejeita_dados_invalidos(resposta):
 
 
 def test_validar_resposta_code_review():
-    """Valida um relatório JSON recebido do modelo."""
+    """Rejeita uma resposta sem achados."""
 
-    resposta = '{"achados": []}'
-
-    resultado = validar_resposta_code_review(resposta)
-
-    assert resultado == {"achados": []}
-
+    with pytest.raises(ValueError, match="pelo menos um achado"):
+        validar_resposta_code_review('{"achados": []}')
 
 def test_analisar_codigo_retorna_relatorio_validado(monkeypatch, tmp_path):
     """Testa a integração sem chamar o Ollama."""
 
-    def resposta_simulada(
-        pergunta,
-        raiz_autorizada,
-        formato_json=False,
-    ):
+    def resposta_simulada(pergunta, raiz_autorizada, formato_json=False):
         assert "exclusivamente" in pergunta
         assert "calculadora.py" in pergunta
         assert raiz_autorizada == tmp_path
         assert formato_json is True
-
-        return '{"achados": []}'
+        return (
+            '{"achados":[{"arquivo":"calculadora.py",'
+            '"funcao":"calcular_media",'
+            '"problema":"Divisão por zero",'
+            '"evidencia":"return sum(notas) / len(notas)",'
+            '"severidade":"media",'
+            '"sugestao":"Tratar listas vazias."}]}'
+        )
 
     monkeypatch.setattr(
         "src.tool_calling.responder_com_ferramenta",
@@ -197,8 +190,8 @@ def test_analisar_codigo_retorna_relatorio_validado(monkeypatch, tmp_path):
         raiz_autorizada=tmp_path,
     )
 
-    assert resultado == {"achados": []}
-
+    assert len(resultado["achados"]) == 1
+    assert resultado["achados"][0]["funcao"] == "calcular_media"
 
 def test_validar_funcoes_relatorio_rejeita_funcao_inexistente():
     """Rejeita uma função inventada pelo modelo."""
@@ -361,3 +354,54 @@ def test_analisar_codigo_com_validacao_aceita_relatorio_valido(monkeypatch, tmp_
     assert resultado == relatorio_simulado
     assert len(resultado["achados"]) == 1
     assert resultado["achados"][0]["funcao"] == "calcular_media"
+
+
+def test_processar_resposta_json_rejeita_relatorio_vazio():
+    """Rejeita JSON válido cuja lista de achados está vazia."""
+
+    with pytest.raises(ValueError, match="pelo menos um achado"):
+        processar_resposta_json('{"achados": []}')
+
+
+def test_validar_funcoes_relatorio_rejeita_evidencia_parcial():
+    """Rejeita um trecho que não corresponde à linha completa."""
+
+    codigo = "def calcular_media(notas):\n    return sum(notas) / len(notas)\n"
+    relatorio = {
+        "achados": [{
+            "arquivo": "calculadora.py",
+            "funcao": "calcular_media",
+            "problema": "Divisão por zero",
+            "evidencia": "sum(notas) / len(notas)",
+            "severidade": "media",
+            "sugestao": "Tratar listas vazias.",
+        }]
+    }
+
+    with pytest.raises(ValueError, match="linhas completas"):
+        validar_funcoes_relatorio(relatorio, codigo)
+
+
+def test_validar_funcoes_relatorio_rejeita_evidencia_de_outra_funcao():
+    """Rejeita linha existente no arquivo, mas fora da função citada."""
+
+    codigo = (
+        "def calcular_media(notas):\n"
+        "    return sum(notas) / len(notas)\n"
+        "\n"
+        "def multiplicar(a, b):\n"
+        "    return a * b\n"
+    )
+    relatorio = {
+        "achados": [{
+            "arquivo": "calculadora.py",
+            "funcao": "calcular_media",
+            "problema": "Problema alegado",
+            "evidencia": "return a * b",
+            "severidade": "media",
+            "sugestao": "Revisar a função.",
+        }]
+    }
+
+    with pytest.raises(ValueError, match="linhas completas"):
+        validar_funcoes_relatorio(relatorio, codigo)
